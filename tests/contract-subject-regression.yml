@@ -100,15 +100,6 @@ targets:
       unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
       e2e: This repository does not define an E2E test suite for this Action.
 
-  - subject_id: subject.ci.github-artifact-transfer-identity
-    action_path: actions/github-artifact-transfer-identity
-    test_map_path: sdd/dsl/specs/contract-core/subjects/github-artifact-transfer-identity/test-maps.sdd.yml
-    integration_id: github-artifact-transfer-identity-contract-entrypoint
-    execution_segments: [node-contract]
-    excluded_levels:
-      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
-      e2e: This repository does not define an E2E test suite for this Action.
-
   - subject_id: subject.ci.vitest-summary
     action_path: actions/ci-vitest-summary
     test_map_path: sdd/dsl/specs/contract-core/subjects/ci-vitest-summary/test-maps.sdd.yml
@@ -150,12 +141,6 @@ coverage_bindings:
       unavailable_metrics: [C0]
       reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
   subject.ci.publish-version:
-    node-contract:
-      applicability: applicable
-      metrics: [C1, line]
-      unavailable_metrics: [C0]
-      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
-  subject.ci.github-artifact-transfer-identity:
     node-contract:
       applicability: applicable
       metrics: [C1, line]

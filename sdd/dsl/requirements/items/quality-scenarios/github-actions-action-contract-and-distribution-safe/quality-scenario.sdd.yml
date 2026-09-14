@@ -31,5 +31,3 @@ related_contracts:
       contract_id: contract.ci-release-notes-binding.outputs
   - contract_ref:
       contract_id: contract.ci.vitest-summary.outputs
-  - contract_ref:
-      contract_id: contract.ci.github-artifact-transfer-identity.outputs
