@@ -1,0 +1,27 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.release-request-handoff
+contracts:
+  - id: contract.ci-release-request-handoff.outputs
+    summary: Valid request inputs produce a request handoff and digest path.
+    conditions:
+      - id: request-mode-present
+        input_predicate:
+          kind: input
+          term: input.mode
+          op: present
+    guarantees:
+      - id: request-handoff-output-produced
+        when: request-mode-present
+        observation_ref: observation.ci-release-request-handoff.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: request-path
+    verification_intents:
+      - id: request-handoff-output-set
+        goal: Valid request inputs produce a request handoff and digest.
+        guarantee_refs:
+          - request-handoff-output-produced

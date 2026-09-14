@@ -1,0 +1,24 @@
+version: 1
+name: contract-observations
+subject_ref: subject.ci.release-notes-input-resolution
+observations:
+  - id: observation.ci-release-notes-input-resolution.outputs
+    summary: The Action exposes the external handoff decision and normalized note paths.
+    boundary:
+      ref: boundary.action-output
+    value:
+      root: action.outputs
+      kind: object
+      fields:
+        - selector: status
+          kind: observation_field
+          meaning: Whether input resolution succeeded.
+        - selector: requires-external
+          kind: observation_field
+          meaning: Whether an external approved notes handoff is required.
+        - selector: release-notes-path
+          kind: observation_field
+          meaning: Normalized release notes path.
+        - selector: approval-path
+          kind: observation_field
+          meaning: Normalized release notes approval path.

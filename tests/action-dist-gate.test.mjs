@@ -8,7 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('collects every Action with a bundled dist artifact', () => {
   const actions = collectActions(root);
-  assert.equal(actions.length, 7);
+  assert.equal(actions.length, 10);
   assert.ok(actions.every((action) => action.distPath.endsWith('/dist')));
 });
 
