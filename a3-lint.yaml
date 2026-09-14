@@ -1,0 +1,45 @@
+config_version: 1
+
+project:
+  variables:
+    skills_root: ${env.A3_SKILLS_ROOT}
+
+  rule_sets:
+    - id: skill-typescript
+      root: ${skills_root}/typescript/assets/a3-lint/rules
+      lib_dir: ${skills_root}/typescript/assets/a3-lint/shared
+      include:
+        - '**/*.lua'
+        - '**/*.yml'
+        - '**/*.yaml'
+      languages:
+        - typescript
+      frameworks:
+        - any
+    - id: skill-javascript
+      root: ${skills_root}/javascript/assets/a3-lint/rules
+      lib_dir: ${skills_root}/javascript/assets/a3-lint/shared
+      include:
+        - '**/*.lua'
+        - '**/*.yml'
+        - '**/*.yaml'
+      languages:
+        - javascript
+        - typescript
+      frameworks:
+        - any
+    - id: skill-ci-github
+      root: ${skills_root}/ci-github/assets/a3-lint/rules
+      include:
+        - '**/*.lua'
+        - '**/*.yml'
+        - '**/*.yaml'
+      languages:
+        - yaml
+      frameworks:
+        - any
+
+run_defaults:
+  framework: any
+  format: json
+  fail_on: warning

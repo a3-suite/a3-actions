@@ -1,0 +1,191 @@
+version: 1
+name: contract-subject-regression-execution
+
+contract_subject_source:
+  package_path: sdd/dsl/specs/contract-core/contract-package.sdd.yml
+  test_map_filename: test-maps.sdd.yml
+
+test_levels:
+  unit:
+    path_prefix: actions/__unit__/
+    empty_reason: Contract test maps select the bundled Action boundary; unit tests remain supporting evidence.
+  integration:
+    path_prefix: actions/
+  e2e:
+    path_prefix: e2e/
+    empty_reason: This repository does not define an E2E test suite.
+
+execution_segments:
+  node-contract:
+    runner: npm
+    command: npm run test:contract
+    coverage_command: npm run test:contract:coverage
+    coverage_output: stdout
+    coverage_source_scope:
+      - dist/**
+    coverage_exclusion_scope:
+      - tests/**
+      - sdd/**
+      - docs/**
+    coverage_metrics:
+      C0:
+        meaning: statement coverage
+        acquisition: unavailable
+        unavailable_reason: Node's built-in test coverage report exposes line and branch percentages, not statement coverage.
+      C1:
+        meaning: branch coverage
+        acquisition: stdout
+      line:
+        meaning: line coverage
+        acquisition: stdout
+
+targets:
+  - subject_id: subject.ci.change-scope
+    action_path: actions/ci-change-scope
+    test_map_path: sdd/dsl/specs/contract-core/subjects/ci-change-scope/test-maps.sdd.yml
+    integration_id: ci-change-scope-contract-entrypoint
+    execution_segments:
+      - node-contract
+    excluded_levels:
+      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
+      e2e: This repository does not define an E2E test suite for this Action.
+
+  - subject_id: subject.ci.config-snapshot
+    action_path: actions/ci-config-snapshot
+    test_map_path: sdd/dsl/specs/contract-core/subjects/ci-config-snapshot/test-maps.sdd.yml
+    integration_id: ci-config-snapshot-contract-entrypoint
+    execution_segments:
+      - node-contract
+    excluded_levels:
+      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
+      e2e: This repository does not define an E2E test suite for this Action.
+
+  - subject_id: subject.ci.handoff-integrity
+    action_path: actions/ci-handoff-integrity
+    test_map_path: sdd/dsl/specs/contract-core/subjects/ci-handoff-integrity/test-maps.sdd.yml
+    integration_id: ci-handoff-integrity-contract-entrypoint
+    execution_segments:
+      - node-contract
+    excluded_levels:
+      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
+      e2e: This repository does not define an E2E test suite for this Action.
+
+  - subject_id: subject.ci.quality-summary
+    action_path: actions/ci-quality-summary
+    test_map_path: sdd/dsl/specs/contract-core/subjects/ci-quality-summary/test-maps.sdd.yml
+    integration_id: ci-quality-summary-contract-entrypoint
+    execution_segments:
+      - node-contract
+    excluded_levels:
+      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
+      e2e: This repository does not define an E2E test suite for this Action.
+
+  - subject_id: subject.ci.release-notes-binding
+    action_path: actions/ci-release-notes-binding
+    test_map_path: sdd/dsl/specs/contract-core/subjects/ci-release-notes-binding/test-maps.sdd.yml
+    integration_id: ci-release-notes-binding-contract-entrypoint
+    execution_segments:
+      - node-contract
+    excluded_levels:
+      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
+      e2e: This repository does not define an E2E test suite for this Action.
+
+  - subject_id: subject.ci.publish-version
+    action_path: actions/ci-publish-version
+    test_map_path: sdd/dsl/specs/contract-core/subjects/ci-publish-version/test-maps.sdd.yml
+    integration_id: ci-publish-version-contract-entrypoint
+    execution_segments:
+      - node-contract
+    excluded_levels:
+      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
+      e2e: This repository does not define an E2E test suite for this Action.
+
+  - subject_id: subject.ci.github-artifact-transfer-identity
+    action_path: actions/github-artifact-transfer-identity
+    test_map_path: sdd/dsl/specs/contract-core/subjects/github-artifact-transfer-identity/test-maps.sdd.yml
+    integration_id: github-artifact-transfer-identity-contract-entrypoint
+    execution_segments: [node-contract]
+    excluded_levels:
+      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
+      e2e: This repository does not define an E2E test suite for this Action.
+
+  - subject_id: subject.ci.vitest-summary
+    action_path: actions/ci-vitest-summary
+    test_map_path: sdd/dsl/specs/contract-core/subjects/ci-vitest-summary/test-maps.sdd.yml
+    integration_id: ci-vitest-summary-contract-entrypoint
+    execution_segments: [node-contract]
+    excluded_levels:
+      unit: Contract evidence is mapped to the bundled Action boundary; unit tests remain supporting evidence.
+      e2e: This repository does not define an E2E test suite for this Action.
+
+coverage_bindings:
+  subject.ci.change-scope:
+    node-contract:
+      applicability: applicable
+      metrics: [C1, line]
+      unavailable_metrics: [C0]
+      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
+  subject.ci.config-snapshot:
+    node-contract:
+      applicability: applicable
+      metrics: [C1, line]
+      unavailable_metrics: [C0]
+      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
+  subject.ci.handoff-integrity:
+    node-contract:
+      applicability: applicable
+      metrics: [C1, line]
+      unavailable_metrics: [C0]
+      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
+  subject.ci.quality-summary:
+    node-contract:
+      applicability: applicable
+      metrics: [C1, line]
+      unavailable_metrics: [C0]
+      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
+  subject.ci.release-notes-binding:
+    node-contract:
+      applicability: applicable
+      metrics: [C1, line]
+      unavailable_metrics: [C0]
+      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
+  subject.ci.publish-version:
+    node-contract:
+      applicability: applicable
+      metrics: [C1, line]
+      unavailable_metrics: [C0]
+      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
+  subject.ci.github-artifact-transfer-identity:
+    node-contract:
+      applicability: applicable
+      metrics: [C1, line]
+      unavailable_metrics: [C0]
+      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
+  subject.ci.vitest-summary:
+    node-contract:
+      applicability: applicable
+      metrics: [C1, line]
+      unavailable_metrics: [C0]
+      reason: Node's built-in test coverage reporter writes branch and line percentages to stdout; statement coverage is unavailable.
+
+result_contract:
+  output_root: tests/tmp/contract-subject-regression
+  dimensions:
+    - contract-subject
+    - execution-segment
+  files:
+    stdout: stdout.log
+    stderr: stderr.log
+    result: result.json
+
+full_regression:
+  separate: true
+
+cost_policy:
+  reuse_current_worktree: true
+  reuse_dependencies: true
+  reuse_build_artifacts: true
+  mandatory_isolation: false
+  build_per_contract_subject: true
+  build_scope: Each Action owns an independent dist artifact under its action_path.
+  dependency_install_per_contract_subject: false

@@ -1,0 +1,17 @@
+version: 1
+name: cli-command
+command:
+  id: sdd-check
+  path:
+    - a3-sdd
+    - sdd
+    - check
+  summary: Validate the adopted SDD artifacts for one project workspace
+  option_groups:
+    - id: common
+      title: Common options
+      options:
+        - workspace-root
+        - format
+  help:
+    usage: a3-sdd sdd check --workspace-root <PROJECT_ROOT> --format <FORMAT>

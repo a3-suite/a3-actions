@@ -1,0 +1,51 @@
+version: 2
+name: contract-route
+routes:
+  - route_id: action-contracts-change-scope
+    contract_ref:
+      subject_ref: subject.ci.change-scope
+      contract_id: contract.ci-change-scope.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-config-snapshot
+    contract_ref:
+      subject_ref: subject.ci.config-snapshot
+      contract_id: contract.ci-config-snapshot.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-handoff-integrity
+    contract_ref:
+      subject_ref: subject.ci.handoff-integrity
+      contract_id: contract.ci-handoff-integrity.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-publish-version
+    contract_ref:
+      subject_ref: subject.ci.publish-version
+      contract_id: contract.ci-publish-version.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-quality-summary
+    contract_ref:
+      subject_ref: subject.ci.quality-summary
+      contract_id: contract.ci-quality-summary.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-release-notes-binding
+    contract_ref:
+      subject_ref: subject.ci.release-notes-binding
+      contract_id: contract.ci-release-notes-binding.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-vitest-summary
+    contract_ref:
+      subject_ref: subject.ci.vitest-summary
+      contract_id: contract.ci.vitest-summary.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-artifact-transfer-identity
+    contract_ref:
+      subject_ref: subject.ci.github-artifact-transfer-identity
+      contract_id: contract.ci.github-artifact-transfer-identity.outputs
+    hops:
+      - component_id: action-contracts

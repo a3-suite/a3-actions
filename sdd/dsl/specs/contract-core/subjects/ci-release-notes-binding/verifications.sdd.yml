@@ -1,0 +1,16 @@
+version: 1
+name: contract-verifications
+subject_ref: subject.ci.release-notes-binding
+verifications:
+  - id: verification.ci-release-notes-binding.outputs
+    contract_id: contract.ci-release-notes-binding.outputs
+    cases:
+      - id: approved-release-notes
+        intent_id: release-notes-binding-output-set
+        input:
+          handoff-json: .ci/release-notes.json
+          approval-json: .ci/release-notes-approval.json
+          release-identity: v1.2.3
+        checks:
+          - id: check-release-notes-binding-status
+            guarantee_ref: release-notes-binding-status-produced

@@ -1,0 +1,27 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.config-snapshot
+contracts:
+  - id: contract.ci-config-snapshot.outputs
+    summary: Valid configuration sources produce a snapshot status output.
+    conditions:
+      - id: sources-input-present
+        input_predicate:
+          kind: input
+          term: input.sources-json
+          op: present
+    guarantees:
+      - id: config-snapshot-status-produced
+        when: sources-input-present
+        observation_ref: observation.ci-config-snapshot.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: status
+    verification_intents:
+      - id: config-snapshot-output-set
+        goal: Valid sources produce their status output.
+        guarantee_refs:
+          - config-snapshot-status-produced

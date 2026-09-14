@@ -1,0 +1,26 @@
+version: 1
+name: contract-package
+package_id: a3-actions-contracts
+subject_scopes:
+  - subject_id: subject.ci.change-scope
+    path: subjects/ci-change-scope/
+  - subject_id: subject.ci.config-snapshot
+    path: subjects/ci-config-snapshot/
+  - subject_id: subject.ci.handoff-integrity
+    path: subjects/ci-handoff-integrity/
+  - subject_id: subject.ci.quality-summary
+    path: subjects/ci-quality-summary/
+  - subject_id: subject.ci.release-notes-binding
+    path: subjects/ci-release-notes-binding/
+  - subject_id: subject.ci.publish-version
+    path: subjects/ci-publish-version/
+  - subject_id: subject.ci.github-artifact-transfer-identity
+    path: subjects/github-artifact-transfer-identity/
+  - subject_id: subject.ci.vitest-summary
+    path: subjects/ci-vitest-summary/
+environment_ref:
+  environment_id: a3-actions-github-environment
+  path: environments/github-actions.sdd.yml
+validator_profile_ref:
+  profile_id: default-contract-core-validator-profile
+  path: validator-profiles/default.sdd.yml

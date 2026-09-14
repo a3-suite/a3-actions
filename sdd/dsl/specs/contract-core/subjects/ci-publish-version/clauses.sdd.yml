@@ -1,0 +1,27 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.publish-version
+contracts:
+  - id: contract.ci-publish-version.outputs
+    summary: An owner-approved version plan produces a publish-version output.
+    conditions:
+      - id: version-plan-input-present
+        input_predicate:
+          kind: input
+          term: input.version-plan-json
+          op: present
+    guarantees:
+      - id: publish-version-output-produced
+        when: version-plan-input-present
+        observation_ref: observation.ci-publish-version.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: publish-version
+    verification_intents:
+      - id: publish-version-output-set
+        goal: A valid owner-approved version plan exposes its materialized publish version.
+        guarantee_refs:
+          - publish-version-output-produced

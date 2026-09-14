@@ -1,0 +1,5 @@
+**/node_modules/
+.DS_Store
+.a3-lint/
+.a3-sdd/
+tests/tmp/

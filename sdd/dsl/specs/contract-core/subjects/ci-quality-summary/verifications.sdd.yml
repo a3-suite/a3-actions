@@ -1,0 +1,14 @@
+version: 1
+name: contract-verifications
+subject_ref: subject.ci.quality-summary
+verifications:
+  - id: verification.ci-quality-summary.outputs
+    contract_id: contract.ci-quality-summary.outputs
+    cases:
+      - id: successful-quality-result
+        intent_id: quality-summary-output-set
+        input:
+          summary-json: '{"tests":[{"unit":"contract","execution":"node","result":"success","evidence":"tests","collection":"完了"}]}'
+        checks:
+          - id: check-quality-summary-status
+            guarantee_ref: quality-summary-status-produced

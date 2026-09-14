@@ -1,0 +1,39 @@
+version: 1
+name: physical-structure
+structure_id: a3-actions-repository-layout
+elements:
+  - element_id: actions-root
+    element_kind: directory
+    path: actions
+    primary_area_kind: action
+    area_kinds: [action]
+    source_control: managed
+    placement_purpose: 独立した GitHub Action の公開契約・実装・配布物・テストを所有する
+  - element_id: sdd-root
+    element_kind: directory
+    path: sdd
+    primary_area_kind: specification
+    area_kinds: [specification]
+    source_control: managed
+    placement_purpose: 要件・仕様・設計を接続する SDD 正本を所有する
+  - element_id: tests-root
+    element_kind: directory
+    path: tests
+    primary_area_kind: verification
+    area_kinds: [verification]
+    source_control: managed
+    placement_purpose: 契約対象ごとの回帰実行定義と検証資産を所有する
+  - element_id: docs-root
+    element_kind: directory
+    path: docs
+    primary_area_kind: documentation
+    area_kinds: [documentation]
+    source_control: managed
+    placement_purpose: リポジトリ横断の利用・保守・運用文書を所有する
+  - element_id: github-root
+    element_kind: directory
+    path: .github
+    primary_area_kind: delivery
+    area_kinds: [delivery]
+    source_control: managed
+    placement_purpose: GitHub Actions workflow と provider 接続用資産を所有する

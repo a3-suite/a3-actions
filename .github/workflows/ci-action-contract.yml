@@ -1,0 +1,267 @@
+name: CI Action contract
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  contract:
+    name: CI Action contract / hosted
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Verify bundled Action distributions
+        shell: bash
+        run: node .github/scripts/check-action-dist.mjs
+
+      - name: Test bundled Action distribution gate
+        shell: bash
+        run: node --test tests/action-dist-gate.test.mjs
+
+      - name: Verify README Action catalog
+        shell: bash
+        run: node .github/scripts/update-action-index.mjs --check
+
+      - name: Test README Action catalog gate
+        shell: bash
+        run: node --test tests/action-index-gate.test.mjs
+
+      - name: Resolve configuration snapshot
+        id: config
+        uses: ./actions/ci-config-snapshot
+        with:
+          sources-json: '{"preset":{"MODE":"release"},"workflow":{"MODE":"candidate"},"runtime":{"MODE":"dry-run"}}'
+          snapshot-path: .ci/config-snapshot.json
+
+      - name: Detect change scope
+        id: scope
+        uses: ./actions/ci-change-scope
+        with:
+          base-sha: ${{ github.event.pull_request.base.sha || github.sha }}
+          head-sha: ${{ github.sha }}
+          docs-only-patterns: docs/**,README.md,**/*.md
+
+      - name: Prepare handoff fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/handoff
+          printf '%s' 'hosted-payload' > .ci/handoff/artifact.bin
+          artifact_digest="$(sha256sum .ci/handoff/artifact.bin | cut -d' ' -f1)"
+          printf '[{"path":"artifact.bin","sha256":"%s"}]' "$artifact_digest" > .ci/handoff/manifest.json
+          printf '{"schema":"ci.handoff.v1","source_sha":"%s","version":"1.0.0","target_identity":"linux-x64","manifest":"manifest.json"}' "${GITHUB_SHA}" > .ci/handoff/handoff.json
+
+      - name: Validate handoff integrity
+        id: handoff
+        uses: ./actions/ci-handoff-integrity
+        with:
+          handoff-root: .ci/handoff
+          descriptor: handoff.json
+          source-sha: ${{ github.sha }}
+          version: 1.0.0
+          target-identity: linux-x64
+
+      - name: Prepare release notes fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          body_digest="$(printf '%s\n' '# Release v1.2.3' | sha256sum | cut -d' ' -f1)"
+          printf '{"schema":"ci.release-notes.v1","source_contract":"git.release-flow","source_field":"body","release_identity":"v1.2.3","body":"# Release v1.2.3\\n","body_sha256":"%s"}' "$body_digest" > .ci/release-notes.json
+          printf '{"schema":"ci.release-notes-approval.v1","source_contract":"git.release-flow","source_field":"body","release_identity":"v1.2.3","body_sha256":"%s","approval_id":"hosted-review"}' "$body_digest" > .ci/release-notes-approval.json
+
+      - name: Validate release notes binding
+        id: notes
+        uses: ./actions/ci-release-notes-binding
+        with:
+          handoff-json: .ci/release-notes.json
+          approval-json: .ci/release-notes-approval.json
+          release-identity: v1.2.3
+
+      - name: Prepare version plan fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' '{"strategy":"ciGenerated","template":"{baseVersion}-dev.{build}","components":{"baseVersion":"1.2.3","build":"42"}}' > .ci/version-plan.json
+
+      - name: Materialize publish version
+        id: version
+        uses: ./actions/ci-publish-version
+        with:
+          version-plan-json: .ci/version-plan.json
+
+      - name: Write quality summary
+        id: summary
+        uses: ./actions/ci-quality-summary
+        with:
+          summary-json: >-
+            {"tests":[{"unit":"hosted-contract","execution":"local Action","result":"success","evidence":"steps","collection":"完了"}]}
+
+      - name: Verify successful outputs
+        env:
+          CONFIG_STATUS: ${{ steps.config.outputs.status }}
+          SCOPE_STATUS: ${{ steps.scope.outputs.status }}
+          HANDOFF_STATUS: ${{ steps.handoff.outputs.status }}
+          NOTES_STATUS: ${{ steps.notes.outputs.status }}
+          VERSION_STATUS: ${{ steps.version.outputs.status }}
+          PUBLISH_VERSION: ${{ steps.version.outputs['publish-version'] }}
+          SUMMARY_STATUS: ${{ steps.summary.outputs.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$CONFIG_STATUS" = success
+          test "$SCOPE_STATUS" = success
+          test "$HANDOFF_STATUS" = success
+          test "$NOTES_STATUS" = success
+          test "$VERSION_STATUS" = success
+          test "$PUBLISH_VERSION" = '1.2.3-dev.42'
+          test "$SUMMARY_STATUS" = success
+
+      - name: Prepare invalid version plan fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' '{"strategy":"ciGenerated","template":"{baseVersion}","components":{}}' > .ci/invalid-version-plan.json
+
+      - name: Verify invalid version plan stops the Action
+        id: invalid-version
+        continue-on-error: true
+        uses: ./actions/ci-publish-version
+        with:
+          version-plan-json: .ci/invalid-version-plan.json
+
+      - name: Verify invalid version plan mapping
+        env:
+          INVALID_VERSION_STATUS: ${{ steps.invalid-version.outputs.status }}
+          INVALID_VERSION_OUTCOME: ${{ steps.invalid-version.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$INVALID_VERSION_STATUS" = failed
+          test "$INVALID_VERSION_OUTCOME" = failure
+
+      - name: Verify unresolved summary stops the Action
+        id: unresolved
+        continue-on-error: true
+        uses: ./actions/ci-quality-summary
+        with:
+          summary-json: >-
+            {"tests":[{"unit":"hosted-unresolved","execution":"missing evidence","result":"判定不能","evidence":"missing","collection":"取得不可","reason":"hosted contract fixture"}]}
+
+      - name: Verify unresolved mapping
+        env:
+          UNRESOLVED_STATUS: ${{ steps.unresolved.outputs.status }}
+          UNRESOLVED_OUTCOME: ${{ steps.unresolved.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$UNRESOLVED_STATUS" = unresolved
+          test "$UNRESOLVED_OUTCOME" = failure
+
+      - name: Verify invalid input stops the Action
+        id: invalid
+        continue-on-error: true
+        uses: ./actions/ci-quality-summary
+        with:
+          summary-json: '{}'
+
+      - name: Verify invalid input mapping
+        env:
+          INVALID_STATUS: ${{ steps.invalid.outputs.status }}
+          INVALID_OUTCOME: ${{ steps.invalid.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$INVALID_STATUS" = failed
+          test "$INVALID_OUTCOME" = failure
+
+      - name: Start artifact API fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          node .github/scripts/artifact-api-fixture.mjs "$RUNNER_TEMP/artifact-api-port" &
+          echo $! > "$RUNNER_TEMP/artifact-api-pid"
+          for _ in {1..20}; do test -s "$RUNNER_TEMP/artifact-api-port" && break; sleep 0.1; done
+          test -s "$RUNNER_TEMP/artifact-api-port"
+          echo "GITHUB_API_URL=http://127.0.0.1:$(cat "$RUNNER_TEMP/artifact-api-port")" >> "$GITHUB_ENV"
+
+      - name: Verify GitHub artifact identity
+        id: artifact
+        uses: ./actions/github-artifact-transfer-identity
+        with:
+          github-token: fixture-token
+          repository: a3-suite/a3-actions
+          run-id: 1234
+          artifact-name: hosted-artifact
+          artifact-id: 42
+          artifact-digest: ${{ format('sha256:{0}', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') }}
+
+      - name: Verify artifact identity outputs
+        env:
+          STATUS: ${{ steps.artifact.outputs.status }}
+          RUN_ID: ${{ steps.artifact.outputs['artifact-transfer-run-id'] }}
+          ARTIFACT_ID: ${{ steps.artifact.outputs['artifact-transfer-id'] }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$STATUS" = success
+          test "$RUN_ID" = 1234
+          test "$ARTIFACT_ID" = 42
+
+      - name: Verify mismatched artifact identity stops the Action
+        id: invalid-artifact
+        continue-on-error: true
+        uses: ./actions/github-artifact-transfer-identity
+        with:
+          github-token: fixture-token
+          repository: a3-suite/a3-actions
+          run-id: 9999
+          artifact-name: hosted-artifact
+          artifact-id: 42
+          artifact-digest: ${{ format('sha256:{0}', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') }}
+
+      - name: Verify artifact mismatch mapping
+        env:
+          STATUS: ${{ steps.invalid-artifact.outputs.status }}
+          OUTCOME: ${{ steps.invalid-artifact.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$STATUS" = failed
+          test "$OUTCOME" = failure
+
+      - name: Prepare Vitest report fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' '{"numTotalTests":2,"numPassedTests":2,"numFailedTests":0,"numPendingTests":0,"numTodoTests":0,"success":true}' > .ci/vitest.json
+
+      - name: Render Vitest summary
+        id: vitest
+        uses: ./actions/ci-vitest-summary
+        with:
+          report-json: .ci/vitest.json
+          label: hosted
+
+      - name: Verify Vitest summary outputs
+        env:
+          STATUS: ${{ steps.vitest.outputs.status }}
+          COLLECTION: ${{ steps.vitest.outputs.collection }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$STATUS" = passed
+          test "$COLLECTION" = complete
+
+      - name: Stop artifact API fixture
+        if: always()
+        shell: bash
+        run: kill "$(cat "$RUNNER_TEMP/artifact-api-pid")" 2>/dev/null || true

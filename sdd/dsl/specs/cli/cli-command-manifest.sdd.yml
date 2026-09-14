@@ -1,0 +1,5 @@
+version: 1
+name: cli-command-manifest
+commands:
+  - id: sdd-check
+    path: commands/sdd-check/cli-command.sdd.yml

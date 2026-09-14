@@ -1,0 +1,27 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.quality-summary
+contracts:
+  - id: contract.ci-quality-summary.outputs
+    summary: A quality result containing rows produces an aggregate status output.
+    conditions:
+      - id: summary-input-present
+        input_predicate:
+          kind: input
+          term: input.summary-json
+          op: present
+    guarantees:
+      - id: quality-summary-status-produced
+        when: summary-input-present
+        observation_ref: observation.ci-quality-summary.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: status
+    verification_intents:
+      - id: quality-summary-output-set
+        goal: A quality result produces its aggregate status output.
+        guarantee_refs:
+          - quality-summary-status-produced

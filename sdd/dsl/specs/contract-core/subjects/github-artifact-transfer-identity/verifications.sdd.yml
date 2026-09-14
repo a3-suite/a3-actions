@@ -1,0 +1,18 @@
+version: 1
+name: contract-verifications
+subject_ref: subject.ci.github-artifact-transfer-identity
+verifications:
+  - id: verification.ci.github-artifact-transfer-identity.outputs
+    contract_id: contract.ci.github-artifact-transfer-identity.outputs
+    cases:
+      - id: matching-provider-identity
+        intent_id: artifact-identity-output-set
+        input:
+          github-token: fixture-token
+          repository: owner/repo
+          run-id: '123'
+          artifact-name: bundle
+          artifact-id: '42'
+          artifact-digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        checks:
+          - {id: check-artifact-identity-output, guarantee_ref: artifact-identity-output-produced}

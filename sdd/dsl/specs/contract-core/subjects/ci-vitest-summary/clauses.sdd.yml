@@ -1,0 +1,18 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.vitest-summary
+contracts:
+  - id: contract.ci.vitest-summary.outputs
+    summary: A Vitest report produces deterministic summary status and digest.
+    conditions:
+      - id: report-input-present
+        input_predicate: {kind: input, term: input.report-json, op: present}
+    guarantees:
+      - id: vitest-summary-output-produced
+        when: report-input-present
+        observation_ref: observation.ci.vitest-summary.outputs
+        claim: {kind: observable-result, op: present, target: {kind: observation_field, value: digest}}
+    verification_intents:
+      - id: vitest-summary-output-set
+        goal: A complete Vitest report exposes passed status and a summary digest.
+        guarantee_refs: [vitest-summary-output-produced]

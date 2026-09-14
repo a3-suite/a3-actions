@@ -1,0 +1,19 @@
+version: 1
+name: contract-environment
+environment_id: a3-actions-github-environment
+boundaries:
+  - id: boundary.action-caller
+    summary: Workflow or caller invoking an Action.
+    kind: workflow
+    direction: input
+    externality: caller-owned
+  - id: boundary.action-output
+    summary: GitHub Actions outputs and step result exposed by an Action.
+    kind: action-output
+    direction: output
+    externality: caller-owned
+  - id: boundary.workspace-files
+    summary: Files read or written in the checked-out workspace.
+    kind: data-store
+    direction: internal-state
+    externality: caller-owned

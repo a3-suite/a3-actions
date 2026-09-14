@@ -1,0 +1,27 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.change-scope
+contracts:
+  - id: contract.ci-change-scope.outputs
+    summary: A resolvable change range produces a change-scope status output.
+    conditions:
+      - id: change-range-input-present
+        input_predicate:
+          kind: input
+          term: input.base-sha
+          op: present
+    guarantees:
+      - id: change-scope-status-produced
+        when: change-range-input-present
+        observation_ref: observation.ci-change-scope.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: status
+    verification_intents:
+      - id: change-scope-output-set
+        goal: A valid change range exposes its status output.
+        guarantee_refs:
+          - change-scope-status-produced

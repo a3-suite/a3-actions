@@ -1,0 +1,18 @@
+version: 1
+name: contract-observations
+subject_ref: subject.ci.publish-version
+observations:
+  - id: observation.ci-publish-version.outputs
+    summary: The Action exposes deterministic publish-version outputs to the caller.
+    boundary:
+      ref: boundary.action-output
+    value:
+      root: action.outputs
+      kind: object
+      fields:
+        - selector: status
+          kind: observation_field
+          meaning: Whether the version plan was materialized successfully.
+        - selector: publish-version
+          kind: observation_field
+          meaning: The materialized publish version.

@@ -1,0 +1,16 @@
+version: 1
+name: cli-option-vocabulary
+options:
+  - id: workspace-root
+    long: --workspace-root
+    kind: value
+    value_name: PROJECT_ROOT
+    summary: Workspace root used to resolve current SDD artifacts and owner definitions
+  - id: format
+    long: --format
+    short: -f
+    kind: value
+    value_name: FORMAT
+    summary: Diagnostic output format requested from the SDD runtime
+    default: text
+    allowed_values: [text, json]

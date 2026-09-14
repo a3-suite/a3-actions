@@ -1,0 +1,19 @@
+version: 2
+name: logical-structure
+structure_id: a3-actions-repository
+components:
+  - component_id: action-contracts
+    responsibility: 各 GitHub Action の公開 I/O 契約と bundled implementation を提供する
+    kind_ref: application-service
+  - component_id: sdd-specifications
+    responsibility: 要件・仕様・設計を接続する SDD 正本を管理する
+    kind_ref: governance-recorder
+  - component_id: contract-verification
+    responsibility: 契約対象ごとのテスト写像と回帰実行定義を管理する
+    kind_ref: governance-gate
+  - component_id: repository-documentation
+    responsibility: 利用・保守・運用のリポジトリ横断文書を提供する
+    kind_ref: docs-surface
+  - component_id: hosted-delivery
+    responsibility: GitHub Actions workflow と provider 接続を実行する
+    kind_ref: application-service
