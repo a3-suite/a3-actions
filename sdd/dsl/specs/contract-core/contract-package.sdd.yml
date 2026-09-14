@@ -12,6 +12,12 @@ subject_scopes:
     path: subjects/ci-quality-summary/
   - subject_id: subject.ci.release-notes-binding
     path: subjects/ci-release-notes-binding/
+  - subject_id: subject.ci.annotated-tag-resolver
+    path: subjects/ci-annotated-tag-resolver/
+  - subject_id: subject.ci.release-request-handoff
+    path: subjects/ci-release-request-handoff/
+  - subject_id: subject.ci.release-notes-input-resolution
+    path: subjects/ci-release-notes-input-resolution/
   - subject_id: subject.ci.publish-version
     path: subjects/ci-publish-version/
   - subject_id: subject.ci.vitest-summary

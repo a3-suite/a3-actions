@@ -23,6 +23,9 @@ uses: a3-suite/a3-actions/actions/<action-name>@<40-char-commit-sha>
 | [`ci-release-notes-binding`](actions/ci-release-notes-binding/README.md) | 承認済み release notes をリリース identity に結び付けるとき | 本文 digest・承認 digest・identity の一致を検証 |
 | [`ci-publish-version`](actions/ci-publish-version/README.md) | 承認済み version plan から公開用バージョンを確定するとき | owner-approved plan を `publish-version` へ具体化 |
 | [`ci-vitest-summary`](actions/ci-vitest-summary/README.md) | Vitest の結果を GitHub Actions の summary に変換するとき | Vitest JSON レポートを summary へ変換 |
+| [`ci-annotated-tag-resolver`](actions/ci-annotated-tag-resolver/README.md) | Annotated tag を GitHub API で解決し、tag object と source commit の SHA を出力します。tag が lightweight tag の場合は失敗します。 | Resolve an annotated Git tag to its tag object and source commit. |
+| [`ci-release-notes-input-resolution`](actions/ci-release-notes-input-resolution/README.md) | Release request の event に応じて release notes 入力を選択し、publication workflow が使うディレクトリへ正規化します。 | Select and normalize release-notes inputs for a release publication workflow. |
+| [`ci-release-request-handoff`](actions/ci-release-request-handoff/README.md) | 固定済みの release request 入力を `ci.release-request.v1` handoff と release notes artifacts へ書き出します。 | Write an immutable release request handoff and its release-notes inputs. |
 
 <!-- action-catalog:end -->
 

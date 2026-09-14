@@ -1,0 +1,24 @@
+version: 1
+name: contract-observations
+subject_ref: subject.ci.release-request-handoff
+observations:
+  - id: observation.ci-release-request-handoff.outputs
+    summary: The Action exposes generated request and notes handoff paths.
+    boundary:
+      ref: boundary.action-output
+    value:
+      root: action.outputs
+      kind: object
+      fields:
+        - selector: request-path
+          kind: observation_field
+          meaning: Path to the immutable release request JSON.
+        - selector: release-notes-path
+          kind: observation_field
+          meaning: Path to release notes JSON when manual mode is used.
+        - selector: approval-path
+          kind: observation_field
+          meaning: Path to release notes approval JSON when manual mode is used.
+        - selector: request-digest
+          kind: observation_field
+          meaning: Path to the request digest file.

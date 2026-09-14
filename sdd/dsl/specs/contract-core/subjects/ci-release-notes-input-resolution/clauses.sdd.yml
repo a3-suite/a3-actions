@@ -1,0 +1,27 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.release-notes-input-resolution
+contracts:
+  - id: contract.ci-release-notes-input-resolution.outputs
+    summary: A valid request produces the external-handoff decision and normalized paths.
+    conditions:
+      - id: request-json-present
+        input_predicate:
+          kind: input
+          term: input.request-json
+          op: present
+    guarantees:
+      - id: notes-resolution-output-produced
+        when: request-json-present
+        observation_ref: observation.ci-release-notes-input-resolution.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: requires-external
+    verification_intents:
+      - id: notes-resolution-output-set
+        goal: A valid request produces the external-handoff decision.
+        guarantee_refs:
+          - notes-resolution-output-produced
