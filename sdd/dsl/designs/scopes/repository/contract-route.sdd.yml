@@ -7,6 +7,12 @@ routes:
       contract_id: contract.ci-change-scope.outputs
     hops:
       - component_id: action-contracts
+  - route_id: action-contracts-annotated-tag-resolver
+    contract_ref:
+      subject_ref: subject.ci.annotated-tag-resolver
+      contract_id: contract.ci-annotated-tag-resolver.outputs
+    hops:
+      - component_id: action-contracts
   - route_id: action-contracts-config-snapshot
     contract_ref:
       subject_ref: subject.ci.config-snapshot
@@ -35,6 +41,18 @@ routes:
     contract_ref:
       subject_ref: subject.ci.release-notes-binding
       contract_id: contract.ci-release-notes-binding.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-release-notes-input-resolution
+    contract_ref:
+      subject_ref: subject.ci.release-notes-input-resolution
+      contract_id: contract.ci-release-notes-input-resolution.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-release-request-handoff
+    contract_ref:
+      subject_ref: subject.ci.release-request-handoff
+      contract_id: contract.ci-release-request-handoff.outputs
     hops:
       - component_id: action-contracts
   - route_id: action-contracts-vitest-summary

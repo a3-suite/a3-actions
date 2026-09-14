@@ -1,0 +1,11 @@
+version: 1
+name: contract-test-maps
+subject_ref: subject.ci.release-notes-input-resolution
+test_maps:
+  - verification_id: verification.ci-release-notes-input-resolution.outputs
+    case_id: tag-notes-resolution
+    tests:
+      - path: actions/ci-release-notes-input-resolution/tests/entrypoint.test.ts
+        symbol: bundled entrypoint resolves an external tag handoff
+        check_refs:
+          - check-notes-resolution-output

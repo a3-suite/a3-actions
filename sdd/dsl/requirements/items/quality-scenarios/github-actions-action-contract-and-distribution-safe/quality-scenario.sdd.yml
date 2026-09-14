@@ -24,10 +24,16 @@ related_contracts:
   - contract_ref:
       contract_id: contract.ci-handoff-integrity.outputs
   - contract_ref:
+      contract_id: contract.ci-annotated-tag-resolver.outputs
+  - contract_ref:
       contract_id: contract.ci-publish-version.outputs
   - contract_ref:
       contract_id: contract.ci-quality-summary.outputs
   - contract_ref:
       contract_id: contract.ci-release-notes-binding.outputs
+  - contract_ref:
+      contract_id: contract.ci-release-notes-input-resolution.outputs
+  - contract_ref:
+      contract_id: contract.ci-release-request-handoff.outputs
   - contract_ref:
       contract_id: contract.ci.vitest-summary.outputs

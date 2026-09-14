@@ -1,0 +1,11 @@
+version: 1
+name: contract-test-maps
+subject_ref: subject.ci.release-request-handoff
+test_maps:
+  - verification_id: verification.ci-release-request-handoff.outputs
+    case_id: manual-request-handoff
+    tests:
+      - path: actions/ci-release-request-handoff/tests/entrypoint.test.ts
+        symbol: bundled entrypoint writes a manual handoff
+        check_refs:
+          - check-request-handoff-output
