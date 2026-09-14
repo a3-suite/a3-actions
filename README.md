@@ -23,7 +23,6 @@ uses: a3-suite/a3-actions/actions/<action-name>@<40-char-commit-sha>
 | [`ci-release-notes-binding`](actions/ci-release-notes-binding/README.md) | 承認済み release notes をリリース identity に結び付けるとき | 本文 digest・承認 digest・identity の一致を検証 |
 | [`ci-publish-version`](actions/ci-publish-version/README.md) | 承認済み version plan から公開用バージョンを確定するとき | owner-approved plan を `publish-version` へ具体化 |
 | [`ci-vitest-summary`](actions/ci-vitest-summary/README.md) | Vitest の結果を GitHub Actions の summary に変換するとき | Vitest JSON レポートを summary へ変換 |
-| [`github-artifact-transfer-identity`](actions/github-artifact-transfer-identity/README.md) | artifact の転送 identity を GitHub API と照合するとき | workflow run・artifact・digest の identity を read-only 検証 |
 
 <!-- action-catalog:end -->
 

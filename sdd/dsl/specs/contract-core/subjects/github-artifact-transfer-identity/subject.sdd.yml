@@ -1,5 +1,0 @@
-version: 1
-name: contract-subject
-subject:
-  id: subject.ci.github-artifact-transfer-identity
-  summary: Verifying a GitHub artifact identity through a read-only provider API.

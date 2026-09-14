@@ -43,9 +43,3 @@ routes:
       contract_id: contract.ci.vitest-summary.outputs
     hops:
       - component_id: action-contracts
-  - route_id: action-contracts-artifact-transfer-identity
-    contract_ref:
-      subject_ref: subject.ci.github-artifact-transfer-identity
-      contract_id: contract.ci.github-artifact-transfer-identity.outputs
-    hops:
-      - component_id: action-contracts
