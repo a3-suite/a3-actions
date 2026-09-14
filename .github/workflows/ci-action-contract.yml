@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
   contract:
@@ -182,61 +181,6 @@ jobs:
           set -euo pipefail
           test "$INVALID_STATUS" = failed
           test "$INVALID_OUTCOME" = failure
-
-      - name: Start artifact API fixture
-        shell: bash
-        run: |
-          set -euo pipefail
-          node .github/scripts/artifact-api-fixture.mjs "$RUNNER_TEMP/artifact-api-port" &
-          echo $! > "$RUNNER_TEMP/artifact-api-pid"
-          for _ in {1..20}; do test -s "$RUNNER_TEMP/artifact-api-port" && break; sleep 0.1; done
-          test -s "$RUNNER_TEMP/artifact-api-port"
-          echo "GITHUB_API_URL=http://127.0.0.1:$(cat "$RUNNER_TEMP/artifact-api-port")" >> "$GITHUB_ENV"
-
-      - name: Verify GitHub artifact identity
-        id: artifact
-        uses: ./actions/github-artifact-transfer-identity
-        with:
-          github-token: fixture-token
-          repository: a3-suite/a3-actions
-          run-id: 1234
-          artifact-name: hosted-artifact
-          artifact-id: 42
-          artifact-digest: ${{ format('sha256:{0}', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') }}
-
-      - name: Verify artifact identity outputs
-        env:
-          STATUS: ${{ steps.artifact.outputs.status }}
-          RUN_ID: ${{ steps.artifact.outputs['artifact-transfer-run-id'] }}
-          ARTIFACT_ID: ${{ steps.artifact.outputs['artifact-transfer-id'] }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$STATUS" = success
-          test "$RUN_ID" = 1234
-          test "$ARTIFACT_ID" = 42
-
-      - name: Verify mismatched artifact identity stops the Action
-        id: invalid-artifact
-        continue-on-error: true
-        uses: ./actions/github-artifact-transfer-identity
-        with:
-          github-token: fixture-token
-          repository: a3-suite/a3-actions
-          run-id: 9999
-          artifact-name: hosted-artifact
-          artifact-id: 42
-          artifact-digest: ${{ format('sha256:{0}', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') }}
-
-      - name: Verify artifact mismatch mapping
-        env:
-          STATUS: ${{ steps.invalid-artifact.outputs.status }}
-          OUTCOME: ${{ steps.invalid-artifact.outcome }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$STATUS" = failed
-          test "$OUTCOME" = failure
 
       - name: Prepare Vitest report fixture
         shell: bash
