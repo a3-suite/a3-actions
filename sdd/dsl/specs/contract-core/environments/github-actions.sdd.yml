@@ -17,3 +17,44 @@ boundaries:
     kind: data-store
     direction: internal-state
     externality: caller-owned
+  - id: boundary.script-result
+    summary: Exit status and generated state exposed by a shared script to its caller.
+    kind: process-output
+    direction: output
+    externality: caller-owned
+  - id: boundary.repository-gate-result
+    summary: Repository consistency result exposed by a maintenance gate.
+    kind: process-output
+    direction: output
+    externality: maintainer-owned
+runtime_contexts:
+  - id: runtime-context.github-toolchain-matches-request
+    summary: The selected mode is supported, every required CLI is available, and each installed version exactly matches the requested version.
+  - id: runtime-context.github-toolchain-does-not-match-request
+    summary: The selected mode is unsupported, a required CLI is unavailable, or an installed version differs from the requested version.
+  - id: runtime-context.github-toolchain-script-succeeded
+    summary: The shared GitHub toolchain verification script completed successfully.
+  - id: runtime-context.github-toolchain-script-failed
+    summary: The shared GitHub toolchain verification script failed.
+  - id: runtime-context.rust-source-matches-authority
+    summary: The release authority selects Rust, contains a canonical source SHA, and matches the checked-out HEAD.
+  - id: runtime-context.rust-source-does-not-match-authority
+    summary: The release authority does not select Rust, has an invalid source SHA, or differs from the checked-out HEAD.
+  - id: runtime-context.rust-source-script-succeeded
+    summary: The shared Rust source verification script completed successfully.
+  - id: runtime-context.rust-source-script-failed
+    summary: The shared Rust source verification script failed.
+  - id: runtime-context.rust-release-build-inputs-match-authority
+    summary: The Rust build request has valid authority, source identity, exact toolchain, unique platform selection, package metadata, and an unclaimed output destination.
+  - id: runtime-context.rust-release-build-rejected
+    summary: A Rust build input is invalid, does not match the release authority, selects an ambiguous platform, uses a mutable toolchain, or targets an existing output destination.
+  - id: runtime-context.rust-release-build-script-succeeded
+    summary: The shared Rust release build script completed build, package, checksum, manifest, and artifact verification successfully.
+  - id: runtime-context.rust-release-build-script-failed
+    summary: The shared Rust release build script failed input validation, build, package, or artifact verification.
+  - id: runtime-context.repository-action-distribution-inputs-available
+    summary: Action definitions, build metadata, tracked distribution paths, and Composite Action script references are available to the distribution gate.
+  - id: runtime-context.repository-action-distribution-inconsistent
+    summary: An untracked distribution file exists or a Composite Action references an untracked script.
+  - id: runtime-context.repository-action-catalog-inputs-available
+    summary: Action definitions and the maintained README Action catalog are available to the catalog projection gate.

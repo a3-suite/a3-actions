@@ -1,6 +1,57 @@
 version: 2
 name: contract-route
 routes:
+  - route_id: repository-action-distribution-integrity
+    contract_ref:
+      subject_ref: subject.repository.action-distribution
+      contract_id: contract.repository-action-distribution.integrity
+    hops:
+      - component_id: contract-verification
+      - component_id: hosted-delivery
+      - component_id: action-contracts
+      - component_id: script-implementations
+  - route_id: action-contracts-github-toolchain-verifier
+    contract_ref:
+      subject_ref: subject.ci.github-toolchain-verifier
+      contract_id: contract.ci-github-toolchain-verifier.outputs
+    hops:
+      - component_id: action-contracts
+      - component_id: script-implementations
+  - route_id: script-processing-github-toolchain-verifier
+    contract_ref:
+      subject_ref: subject.ci.github-toolchain-verifier
+      contract_id: contract.ci-github-toolchain-verifier.processing
+    hops:
+      - component_id: script-implementations
+      - component_id: action-contracts
+  - route_id: action-contracts-rust-source-gate
+    contract_ref:
+      subject_ref: subject.ci.rust-source-gate
+      contract_id: contract.ci-rust-source-gate.outputs
+    hops:
+      - component_id: action-contracts
+      - component_id: script-implementations
+  - route_id: script-processing-rust-source-gate
+    contract_ref:
+      subject_ref: subject.ci.rust-source-gate
+      contract_id: contract.ci-rust-source-gate.processing
+    hops:
+      - component_id: script-implementations
+      - component_id: action-contracts
+  - route_id: action-contracts-rust-release-build
+    contract_ref:
+      subject_ref: subject.ci.rust-release-build
+      contract_id: contract.ci-rust-release-build.outputs
+    hops:
+      - component_id: action-contracts
+      - component_id: script-implementations
+  - route_id: script-processing-rust-release-build
+    contract_ref:
+      subject_ref: subject.ci.rust-release-build
+      contract_id: contract.ci-rust-release-build.processing
+    hops:
+      - component_id: script-implementations
+      - component_id: action-contracts
   - route_id: action-contracts-change-scope
     contract_ref:
       subject_ref: subject.ci.change-scope

@@ -9,6 +9,13 @@ elements:
     area_kinds: [action]
     source_control: managed
     placement_purpose: 独立した GitHub Action の公開契約・実装・配布物・テストを所有する
+  - element_id: scripts-root
+    element_kind: directory
+    path: scripts
+    primary_area_kind: implementation
+    area_kinds: [implementation, verification]
+    source_control: managed
+    placement_purpose: provider adapter から独立して実行・検証できる共通スクリプト実装を所有する
   - element_id: sdd-root
     element_kind: directory
     path: sdd

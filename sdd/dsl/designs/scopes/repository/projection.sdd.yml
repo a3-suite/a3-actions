@@ -4,6 +4,8 @@ projection_id: a3-actions-repository-layout
 mappings:
   - component_id: action-contracts
     element_id: actions-root
+  - component_id: script-implementations
+    element_id: scripts-root
   - component_id: sdd-specifications
     element_id: sdd-root
   - component_id: contract-verification

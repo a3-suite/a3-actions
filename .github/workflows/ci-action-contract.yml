@@ -1,4 +1,4 @@
-name: CI Action contract
+name: ci-action-contract
 
 on:
   push:
@@ -33,6 +33,65 @@ jobs:
       - name: Test README Action catalog gate
         shell: bash
         run: node --test tests/action-index-gate.test.mjs
+
+      - name: Test shared GitHub toolchain verifier
+        shell: bash
+        run: node --test scripts/ci-github/tests/verify-github-toolchain.test.mjs
+
+      - name: Test GitHub toolchain verifier Action contract
+        shell: bash
+        run: node --test actions/ci-github-toolchain-verifier/tests/action-contract.test.mjs
+
+      - name: Test shared Rust release scripts
+        shell: bash
+        run: node --test scripts/rust-release/tests/rust-release-scripts.test.mjs
+
+      - name: Test Rust release Action contracts
+        shell: bash
+        run: >-
+          node --test
+          actions/ci-rust-source-gate/tests/action-contract.test.mjs
+          actions/ci-rust-release-build/tests/action-contract.test.mjs
+
+      - name: Resolve hosted toolchain versions
+        id: toolchain-versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "gh=$(gh --version | awk 'NR == 1 { print $3 }')"
+            echo "jq=$(jq --version | sed 's/^jq-//')"
+            echo "sha256sum=$(sha256sum --version | sed -n '1s/.*) \([0-9][0-9.]*\).*/\1/p')"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Verify hosted GitHub toolchain
+        id: toolchain
+        uses: ./actions/ci-github-toolchain-verifier
+        with:
+          mode: gh-jq-sha256
+          gh-version: ${{ steps.toolchain-versions.outputs.gh }}
+          jq-version: ${{ steps.toolchain-versions.outputs.jq }}
+          sha256sum-version: ${{ steps.toolchain-versions.outputs.sha256sum }}
+
+      - name: Verify hosted GitHub toolchain output
+        env:
+          VERIFIED: ${{ steps.toolchain.outputs.verified }}
+        shell: bash
+        run: test "$VERIFIED" = true
+
+      - name: Prepare Rust source gate authority
+        shell: bash
+        run: |
+          mkdir -p .ci/rust-source-gate
+          jq -n --arg source_sha "$GITHUB_SHA" \
+            '{language_profile:"rust", source_sha:$source_sha}' \
+            > .ci/rust-source-gate/authority.json
+
+      - name: Verify hosted Rust source gate
+        uses: ./actions/ci-rust-source-gate
+        with:
+          language-profile: rust
+          authority-path: .ci/rust-source-gate/authority.json
 
       - name: Resolve configuration snapshot
         id: config

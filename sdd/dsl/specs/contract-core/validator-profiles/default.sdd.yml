@@ -16,6 +16,14 @@ claim_profile:
       - target_kind: diagnostic_code
         allowed_ops:
           - contains
+  - kind: observable-value
+    allowed_ops:
+      - in
+    relation_compatibility:
+      - left_kind: observation_field
+        right_kind: value_set
+        allowed_ops:
+          - in
 predicate_profile:
   - kind: input
     allowed_ops:
