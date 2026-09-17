@@ -1,0 +1,31 @@
+version: 1
+name: contract-verifications
+subject_ref: subject.repository.action-distribution
+verifications:
+  - id: verification.repository-action-distribution.integrity
+    contract_id: contract.repository-action-distribution.integrity
+    cases:
+      - id: maintained-distribution-inputs
+        intent_id: distribution-plan-derived
+        input:
+          actions-root: actions
+          scripts-root: scripts
+        checks:
+          - id: check-distribution-plan-produced
+            guarantee_ref: distribution-plan-produced
+      - id: inconsistent-distribution-state
+        intent_id: inconsistent-distribution-stopped
+        input:
+          actions-root: actions
+          scripts-root: scripts
+        checks:
+          - id: check-inconsistent-distribution-rejected
+            guarantee_ref: inconsistent-distribution-rejected
+      - id: maintained-action-catalog
+        intent_id: action-catalog-derived
+        input:
+          actions-root: actions
+          catalog-path: README.md
+        checks:
+          - id: check-action-catalog-projected
+            guarantee_ref: action-catalog-projected

@@ -28,8 +28,31 @@ test('preserves curated rows and appends newly discovered actions', () => {
 });
 
 test('removes rows for deleted actions', () => {
-  const updated = updateActionTable(readme, [
+  const catalogWithDeletedAction = readme.replace(
+    '| [`alpha`](actions/alpha/README.md) | alpha を使うとき | alpha summary |\n',
+    [
+      '| [`alpha`](actions/alpha/README.md) | alpha を使うとき | alpha summary |',
+      '| [`beta`](actions/beta/README.md) | beta を使うとき | beta summary |',
+      '',
+    ].join('\n'),
+  );
+  const updated = updateActionTable(catalogWithDeletedAction, [
     { name: 'alpha', directory: 'alpha', description: 'alpha', readmeSummary: 'alpha' },
   ]);
-  assert.doesNotMatch(updated, /beta/);
+  assert.doesNotMatch(updated, /\[`beta`\]/);
+});
+
+test('normalizes a multiline Action summary into one table row', () => {
+  const updated = updateActionTable(readme, [
+    { name: 'alpha', directory: 'alpha', description: 'alpha', readmeSummary: 'alpha' },
+    {
+      name: 'beta',
+      directory: 'beta',
+      description: 'beta description',
+      readmeSummary: 'beta summary first line,\nsecond line.',
+    },
+  ]);
+
+  assert.match(updated, /\| \[`beta`\].*beta summary first line, second line\..*beta description \|/);
+  assert.doesNotMatch(updated, /beta summary first line,\nsecond line/);
 });

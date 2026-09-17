@@ -9,3 +9,11 @@ items:
     kind: quality-scenario
   - path: items/constraints/github-actions-action-boundary-and-distribution/constraint.sdd.yml
     kind: constraint
+  - path: items/requirements/rust-release-asset-integrity/requirement.sdd.yml
+    kind: requirement
+  - path: items/quality-scenarios/rust-release-asset-integrity-safe/quality-scenario.sdd.yml
+    kind: quality-scenario
+  - path: items/requirements/github-toolchain-exact-version-verification/requirement.sdd.yml
+    kind: requirement
+  - path: items/quality-scenarios/github-toolchain-exact-version-verification-safe/quality-scenario.sdd.yml
+    kind: quality-scenario
