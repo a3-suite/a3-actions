@@ -3,7 +3,10 @@ name: logical-structure
 structure_id: a3-actions-repository
 components:
   - component_id: action-contracts
-    responsibility: 各 GitHub Action の公開 I/O 契約と bundled implementation を提供する
+    responsibility: 各 GitHub Action の公開 I/O 契約と provider adapter を提供する
+    kind_ref: application-service
+  - component_id: script-implementations
+    responsibility: Action と workflow から独立して実行・検証できる定型処理を提供する
     kind_ref: application-service
   - component_id: sdd-specifications
     responsibility: 要件・仕様・設計を接続する SDD 正本を管理する

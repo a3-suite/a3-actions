@@ -11,6 +11,7 @@ response_measure:
   - 必須・不正・境界入力は成功扱いにせず、Action の終了状態と診断情報へ反映する
   - secret、token、credential はログ、output、summary、証跡へ出力しない
   - source、依存、ビルド設定から再生成した配布物と同梱 dist の内容が一致する
+  - Composite Action が参照する script は同じ ref に存在し、Action 外でも同じ入力契約と終了状態を検証できる
   - Action の追加・削除時に README.md の Action 一覧と用途が同期し、未同期の変更はコミットゲートで停止する
   - workflow の権限、runner、trigger、job 境界を Action 内部へ取り込まない
 related_requirements:
@@ -18,22 +19,4 @@ related_requirements:
       requirement_id: github-actions-action-contract-and-distribution
 related_contracts:
   - contract_ref:
-      contract_id: contract.ci-change-scope.outputs
-  - contract_ref:
-      contract_id: contract.ci-config-snapshot.outputs
-  - contract_ref:
-      contract_id: contract.ci-handoff-integrity.outputs
-  - contract_ref:
-      contract_id: contract.ci-annotated-tag-resolver.outputs
-  - contract_ref:
-      contract_id: contract.ci-publish-version.outputs
-  - contract_ref:
-      contract_id: contract.ci-quality-summary.outputs
-  - contract_ref:
-      contract_id: contract.ci-release-notes-binding.outputs
-  - contract_ref:
-      contract_id: contract.ci-release-notes-input-resolution.outputs
-  - contract_ref:
-      contract_id: contract.ci-release-request-handoff.outputs
-  - contract_ref:
-      contract_id: contract.ci.vitest-summary.outputs
+      contract_id: contract.repository-action-distribution.integrity

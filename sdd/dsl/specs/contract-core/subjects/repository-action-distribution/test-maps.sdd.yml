@@ -1,0 +1,37 @@
+version: 1
+name: contract-test-maps
+subject_ref: subject.repository.action-distribution
+test_maps:
+  - verification_id: verification.repository-action-distribution.integrity
+    case_id: maintained-distribution-inputs
+    tests:
+      - path: tests/action-dist-gate.test.mjs
+        symbol: build plan installs, rebuilds, and compares every Action dist
+        check_refs:
+          - check-distribution-plan-produced
+      - path: tests/action-dist-gate.test.mjs
+        symbol: collects and rebuilds the Rust release script bundle
+        check_refs:
+          - check-distribution-plan-produced
+  - verification_id: verification.repository-action-distribution.integrity
+    case_id: inconsistent-distribution-state
+    tests:
+      - path: tests/action-dist-gate.test.mjs
+        symbol: fails when a build leaves an untracked dist file
+        check_refs:
+          - check-inconsistent-distribution-rejected
+      - path: tests/action-dist-gate.test.mjs
+        symbol: fails when a Composite Action references an untracked script
+        check_refs:
+          - check-inconsistent-distribution-rejected
+  - verification_id: verification.repository-action-distribution.integrity
+    case_id: maintained-action-catalog
+    tests:
+      - path: tests/action-index-gate.test.mjs
+        symbol: preserves curated rows and appends newly discovered actions
+        check_refs:
+          - check-action-catalog-projected
+      - path: tests/action-index-gate.test.mjs
+        symbol: removes rows for deleted actions
+        check_refs:
+          - check-action-catalog-projected

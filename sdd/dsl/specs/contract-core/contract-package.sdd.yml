@@ -2,6 +2,14 @@ version: 1
 name: contract-package
 package_id: a3-actions-contracts
 subject_scopes:
+  - subject_id: subject.repository.action-distribution
+    path: subjects/repository-action-distribution/
+  - subject_id: subject.ci.github-toolchain-verifier
+    path: subjects/ci-github-toolchain-verifier/
+  - subject_id: subject.ci.rust-source-gate
+    path: subjects/ci-rust-source-gate/
+  - subject_id: subject.ci.rust-release-build
+    path: subjects/ci-rust-release-build/
   - subject_id: subject.ci.change-scope
     path: subjects/ci-change-scope/
   - subject_id: subject.ci.config-snapshot

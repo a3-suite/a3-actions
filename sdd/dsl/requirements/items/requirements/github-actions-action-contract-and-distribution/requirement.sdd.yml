@@ -19,6 +19,8 @@ requirements:
       - 失敗は Action の終了状態へ反映し、診断情報を出力する。ただし secret、token、credential、機密入力をログや output に出力しない
       - JavaScript / TypeScript Action は固定依存とビルド設定から再生成した dist 配布物を同じ実装 ref に含め、利用者側の build と node_modules を要求しない
       - Composite Action は参照する step と script を同じ実装 ref に含め、Docker Action は action.yml、Dockerfile、依存定義を同じ実装 ref に含める
+      - 複数の adapter から再利用する定型処理は scripts 配下を実装正本とし、引数、環境変数、終了状態、診断メッセージを単独で検証できる
+      - Composite Action は input と output を script の実行契約へ写像する薄い adapter とし、script の処理本体を複製しない
       - 契約テスト、実装テスト、配布物検証を分離して実行でき、必須・不正・境界・正常入力と成功 output、失敗終了状態を確認できる
       - Action は CI preset、stage、workflow trigger、job、runner、matrix、caller permissions、artifact handoff、publish 判断を実装責務として持たない
       - workflow から Action への input mapping、secret 注入、provider 権限、runner、信頼境界は選択した provider の契約へ委譲できる

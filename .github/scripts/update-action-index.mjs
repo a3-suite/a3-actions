@@ -16,6 +16,8 @@ const parseScalar = (content, key) => {
 
 const actionNameFromRow = (row) => row.match(/^\|\s*\[`([^`]+)`\]\(/)?.[1] ?? null;
 
+const tableCell = (value) => value.replace(/\s+/g, ' ').trim().replaceAll('|', '\\|');
+
 const readActions = async (root) => {
   const actionsRoot = path.join(root, 'actions');
   const entries = await readdir(actionsRoot, { withFileTypes: true });
@@ -46,7 +48,7 @@ const existingRows = (readme) => {
 
 const generatedRow = (action) => {
   const usage = action.readmeSummary || action.description;
-  return `| [\`${action.name}\`](actions/${action.directory}/README.md) | ${usage.replaceAll('|', '\\|')} | ${action.description.replaceAll('|', '\\|')} |`;
+  return `| [\`${action.name}\`](actions/${action.directory}/README.md) | ${tableCell(usage)} | ${tableCell(action.description)} |`;
 };
 
 export const updateActionTable = (readme, actions) => {

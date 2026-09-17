@@ -10,6 +10,7 @@
 
 - Action の公開契約: `actions/<action-name>/action.yml`
 - Action 固有の要求・仕様・設計: `actions/<action-name>/docs/`
+- 共通スクリプトの実装契約: `scripts/<domain>/README.md` と実行対象 script
 - リポジトリ横断の要求・仕様・設計: `docs/`
 - SDD の DSL: `sdd-framework` で解決した owner の正本
 
@@ -23,7 +24,7 @@ node .github/scripts/update-action-index.mjs --write
 
 コミットゲートは `--check` で README の一覧が同期済みか検証します。
 
-Action の `dist/` 同一性は、各 package の build 後に次のゲートで検証します。
+JavaScript / TypeScript Action の `dist/` 同一性と、Composite Action の配布構成は次のゲートで検証します。
 
 ```sh
 node .github/scripts/check-action-dist.mjs
