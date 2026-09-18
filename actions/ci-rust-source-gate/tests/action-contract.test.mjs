@@ -25,7 +25,13 @@ const runBlock = () => {
   return match[1].replace(/^ {8}/gm, '');
 };
 
+// integration_id: ci-rust-source-gate-action-regression
 test('action.yml maps the public source gate inputs to the shared script', () => {
+  // Arrange
+  const actionPath = path.join(root, 'action.yml');
+  // Act
+  const action = readFileSync(actionPath, 'utf8');
+  // Assert
   assert.match(action, /^name: ci-rust-source-gate$/m);
   assert.match(action, /^  using: composite$/m);
   for (const input of ['language-profile', 'authority-path']) {
@@ -39,7 +45,10 @@ test('action.yml maps the public source gate inputs to the shared script', () =>
   accessSync(script, constants.R_OK | constants.X_OK);
 });
 
+// contract_id: contract.ci-rust-source-gate.outputs
+// integration_id: ci-rust-source-gate-action
 test('composite source gate exposes verified only after script success', () => {
+  // Arrange
   const fixture = mkdtempSync(path.join(os.tmpdir(), 'a3-actions-rust-source-action-'));
   const actionPath = path.join(fixture, 'actions', 'ci-rust-source-gate');
   const fixtureScript = path.join(fixture, 'scripts', 'rust-release', 'ci-source-gate.sh');
@@ -50,6 +59,7 @@ test('composite source gate exposes verified only after script success', () => {
     writeFileSync(fixtureScript, '#!/usr/bin/env bash\nset -euo pipefail\ntest "$1" = rust\ntest "$2" = authority.json\n');
     chmodSync(fixtureScript, 0o755);
     writeFileSync(output, '');
+    // Act
     const success = spawnSync('bash', ['-euo', 'pipefail', '-c', runBlock()], {
       encoding: 'utf8',
       env: {
@@ -60,10 +70,13 @@ test('composite source gate exposes verified only after script success', () => {
         AUTHORITY_PATH: 'authority.json',
       },
     });
+    // Assert
     assert.equal(success.status, 0, success.stderr);
     assert.equal(readFileSync(output, 'utf8'), 'verified=true\n');
 
+    // Arrange
     writeFileSync(output, '');
+    // Act
     const failure = spawnSync('bash', ['-euo', 'pipefail', '-c', runBlock()], {
       encoding: 'utf8',
       env: {
@@ -74,6 +87,7 @@ test('composite source gate exposes verified only after script success', () => {
         AUTHORITY_PATH: 'authority.json',
       },
     });
+    // Assert
     assert.notEqual(failure.status, 0);
     assert.equal(readFileSync(output, 'utf8'), '');
   } finally {

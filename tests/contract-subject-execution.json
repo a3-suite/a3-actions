@@ -31,7 +31,8 @@
       "subjectId": "subject.ci.change-scope",
       "build": { "cwd": "actions/ci-change-scope", "command": ["npm", "run", "build"] },
       "segments": [
-        { "id": "unit-source", "level": "unit", "cwd": "actions/ci-change-scope", "tests": ["tests/scope.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "unit", "level": "unit", "status": "excluded", "reason": "The source suite composes multiple change-scope functions; no isolated unit test surface is declared." },
+        { "id": "integration-source", "level": "integration", "cwd": "actions/ci-change-scope", "tests": ["tests/scope.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
         { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-change-scope", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
         { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "No external system flow is defined for this Action." }
       ]
@@ -40,7 +41,8 @@
       "subjectId": "subject.ci.config-snapshot",
       "build": { "cwd": "actions/ci-config-snapshot", "command": ["npm", "run", "build"] },
       "segments": [
-        { "id": "unit-source", "level": "unit", "cwd": "actions/ci-config-snapshot", "tests": ["tests/snapshot.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "unit-source", "level": "unit", "cwd": "actions/ci-config-snapshot", "tests": ["tests/snapshot-unit.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/snapshot.ts"], "exclude": ["dist/**"] } },
+        { "id": "integration-source", "level": "integration", "cwd": "actions/ci-config-snapshot", "tests": ["tests/snapshot.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
         { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-config-snapshot", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
         { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "No external system flow is defined for this Action." }
       ]
@@ -58,7 +60,8 @@
       "subjectId": "subject.ci.handoff-integrity",
       "build": { "cwd": "actions/ci-handoff-integrity", "command": ["npm", "run", "build"] },
       "segments": [
-        { "id": "unit-source", "level": "unit", "cwd": "actions/ci-handoff-integrity", "tests": ["tests/integrity.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "unit", "level": "unit", "status": "excluded", "reason": "The source behavior validates filesystem-backed handoff assets; no isolated unit test surface is declared." },
+        { "id": "integration-source", "level": "integration", "cwd": "actions/ci-handoff-integrity", "tests": ["tests/integrity.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
         { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-handoff-integrity", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
         { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "No external system flow is defined for this Action." }
       ]
@@ -103,7 +106,8 @@
       "subjectId": "subject.ci.release-notes-input-resolution",
       "build": { "cwd": "actions/ci-release-notes-input-resolution", "command": ["npm", "run", "build"] },
       "segments": [
-        { "id": "unit-source", "level": "unit", "cwd": "actions/ci-release-notes-input-resolution", "tests": ["tests/resolution.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "unit", "level": "unit", "status": "excluded", "reason": "The source behavior resolves and copies filesystem-backed handoffs; no isolated unit test surface is declared." },
+        { "id": "integration-source", "level": "integration", "cwd": "actions/ci-release-notes-input-resolution", "tests": ["tests/resolution.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
         { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-release-notes-input-resolution", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
         { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "No external system flow is defined for this Action." }
       ]
@@ -112,9 +116,40 @@
       "subjectId": "subject.ci.release-request-handoff",
       "build": { "cwd": "actions/ci-release-request-handoff", "command": ["npm", "run", "build"] },
       "segments": [
-        { "id": "unit-source", "level": "unit", "cwd": "actions/ci-release-request-handoff", "tests": ["tests/handoff.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "unit", "level": "unit", "status": "excluded", "reason": "The source behavior writes filesystem-backed handoff assets; no isolated unit test surface is declared." },
+        { "id": "integration-source", "level": "integration", "cwd": "actions/ci-release-request-handoff", "tests": ["tests/handoff.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
         { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-release-request-handoff", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
         { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "No external system flow is defined for this Action." }
+      ]
+    },
+    {
+      "subjectId": "subject.ci.release-publication-control",
+      "build": { "cwd": "actions/ci-release-publication-control", "command": ["npm", "run", "build"] },
+      "segments": [
+        { "id": "unit-source", "level": "unit", "cwd": "actions/ci-release-publication-control", "tests": ["tests/time.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "integration-source", "level": "integration", "cwd": "actions/ci-release-publication-control", "tests": ["tests/control.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-release-publication-control", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
+        { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "Hosted release publication requires external workflow evidence and is outside local contract-subject execution." }
+      ]
+    },
+    {
+      "subjectId": "subject.ci.package-publication-request",
+      "build": { "cwd": "actions/ci-package-publication-request", "command": ["npm", "run", "build"] },
+      "segments": [
+        { "id": "unit", "level": "unit", "status": "excluded", "reason": "The source behavior depends on the filesystem; no isolated unit test surface is declared." },
+        { "id": "integration-source", "level": "integration", "cwd": "actions/ci-package-publication-request", "tests": ["tests/request.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-package-publication-request", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
+        { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "Hosted package publication requires external workflow evidence and is outside local contract-subject execution." }
+      ]
+    },
+    {
+      "subjectId": "subject.ci.quality-adapter",
+      "build": { "cwd": "actions/ci-quality-adapter", "command": ["npm", "run", "build"] },
+      "segments": [
+        { "id": "unit", "level": "unit", "status": "excluded", "reason": "The source behavior depends on the filesystem and child processes; no isolated unit test surface is declared." },
+        { "id": "integration-source", "level": "integration", "cwd": "actions/ci-quality-adapter", "tests": ["tests/adapter.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
+        { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-quality-adapter", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
+        { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "Hosted multi-checkout execution requires GitHub-hosted evidence and is outside local contract-subject execution." }
       ]
     },
     {

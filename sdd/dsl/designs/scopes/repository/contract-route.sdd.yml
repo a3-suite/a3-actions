@@ -112,6 +112,24 @@ routes:
       contract_id: contract.ci-release-request-handoff.outputs
     hops:
       - component_id: action-contracts
+  - route_id: action-contracts-release-publication-control
+    contract_ref:
+      subject_ref: subject.ci.release-publication-control
+      contract_id: contract.ci-release-publication-control.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-package-publication-request
+    contract_ref:
+      subject_ref: subject.ci.package-publication-request
+      contract_id: contract.ci-package-publication-request.outputs
+    hops:
+      - component_id: action-contracts
+  - route_id: action-contracts-quality-adapter
+    contract_ref:
+      subject_ref: subject.ci.quality-adapter
+      contract_id: contract.ci-quality-adapter.outputs
+    hops:
+      - component_id: action-contracts
   - route_id: action-contracts-vitest-summary
     contract_ref:
       subject_ref: subject.ci.vitest-summary

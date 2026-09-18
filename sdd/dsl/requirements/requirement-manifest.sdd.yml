@@ -9,6 +9,10 @@ items:
     kind: quality-scenario
   - path: items/constraints/github-actions-action-boundary-and-distribution/constraint.sdd.yml
     kind: constraint
+  - path: items/requirements/ci-common-processing-action-reuse/requirement.sdd.yml
+    kind: requirement
+  - path: items/quality-scenarios/ci-common-processing-action-reuse-safe/quality-scenario.sdd.yml
+    kind: quality-scenario
   - path: items/requirements/rust-release-asset-integrity/requirement.sdd.yml
     kind: requirement
   - path: items/quality-scenarios/rust-release-asset-integrity-safe/quality-scenario.sdd.yml

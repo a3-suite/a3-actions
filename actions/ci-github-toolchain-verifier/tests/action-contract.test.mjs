@@ -51,7 +51,13 @@ const runComposite = ({ fixture, output }, overrides = {}) => spawnSync('/bin/ba
   },
 });
 
+// integration_id: ci-github-toolchain-verifier-action-regression
 test('action.yml exposes a thin composite contract for the shared script', () => {
+  // Arrange
+  const actionPath = path.join(root, 'action.yml');
+  // Act
+  const action = readFileSync(actionPath, 'utf8');
+  // Assert
   assert.match(action, /^name: ci-github-toolchain-verifier$/m);
   assert.match(action, /^  using: composite$/m);
   for (const input of ['mode', 'gh-version', 'jq-version', 'sha256sum-version']) {
@@ -65,13 +71,22 @@ test('action.yml exposes a thin composite contract for the shared script', () =>
   accessSync(script, constants.R_OK | constants.X_OK);
 });
 
+// contract_id: contract.ci-github-toolchain-verifier.outputs
+// integration_id: ci-github-toolchain-verifier-action
 test('composite run exposes verified only after exact toolchain verification', () => withCompositeFixture((fixture) => {
-  const success = runComposite(fixture);
+  // Arrange
+  const successInput = fixture;
+  // Act
+  const success = runComposite(successInput);
+  // Assert
   assert.equal(success.status, 0, success.stderr);
   assert.equal(readFileSync(fixture.output, 'utf8'), 'verified=true\n');
 
+  // Arrange
   writeFileSync(fixture.output, '');
+  // Act
   const failure = runComposite(fixture, { CI_JQ_VERSION: '1.6' });
+  // Assert
   assert.equal(failure.status, 1);
   assert.match(failure.stderr, /jq-version-mismatch/);
   assert.equal(readFileSync(fixture.output, 'utf8'), '');

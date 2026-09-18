@@ -25,22 +25,35 @@ const runBundled = (plan: unknown) => {
   return { result, output };
 };
 
+// integration_id: ci-publish-version-entrypoint-regression
 test('bundled entrypoint publishes a materialized version', () => {
+  // Arrange
+  // Act
   const run = runBundled({ strategy: 'ciGenerated', template: '{baseVersion}-dev.{build}', components: { baseVersion: '1.2.3', build: '42' } });
+  // Assert
   assert.equal(run.result.status, 0);
   assert.match(run.output, /status<<.*success/s);
   assert.match(run.output, /publish-version<<.*1\.2\.3-dev\.42/s);
 });
 
+// contract_id: contract.ci-publish-version.outputs
+// integration_id: ci-publish-version-contract-entrypoint
 test('bundled entrypoint publishes an exact version', () => {
+  // Arrange
+  // Act
   const run = runBundled({ strategy: 'exact', publishVersion: '1.2.3' });
+  // Assert
   assert.equal(run.result.status, 0);
   assert.match(run.output, /status<<.*success/s);
   assert.match(run.output, /publish-version<<.*1\.2\.3/s);
 });
 
+// integration_id: ci-publish-version-entrypoint-regression
 test('bundled entrypoint fails invalid plan input', () => {
+  // Arrange
+  // Act
   const run = runBundled({ strategy: 'ciGenerated', template: '{baseVersion}', components: {} });
+  // Assert
   assert.notEqual(run.result.status, 0);
   assert.match(run.output, /status<<.*failed/s);
 });

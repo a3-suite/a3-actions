@@ -1,0 +1,16 @@
+version: 1
+name: contract-verifications
+subject_ref: subject.ci.release-publication-control
+verifications:
+  - id: verification.ci-release-publication-control.outputs
+    contract_id: contract.ci-release-publication-control.outputs
+    cases:
+      - id: publication-request-round-trip
+        intent_id: publication-request-binding
+        input:
+          operation: verify-publication-request
+        checks:
+          - id: check-publication-control-status
+            guarantee_ref: publication-control-status-produced
+          - id: check-publication-request-run-id
+            guarantee_ref: publication-request-run-id-produced

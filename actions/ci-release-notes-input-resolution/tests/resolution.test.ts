@@ -15,22 +15,30 @@ const setup = (event: string) => {
   return { root, request, source, output };
 };
 
+// integration_id: ci-release-notes-input-resolution-source
 test('copies external notes for tag mode', () => {
+  // Arrange
   const paths = setup('tag');
   fs.writeFileSync(path.join(paths.source, 'release-notes.json'), '{}');
   fs.writeFileSync(path.join(paths.source, 'release-notes-approval.json'), '{}');
+  // Act
   const result = resolveReleaseNotesInput({ requestJson: paths.request, inputHandoffDirectory: paths.source, outputDirectory: paths.output, handoffRunId: '42', resolveOnly: false });
+  // Assert
   assert.equal(result.requiresExternal, true);
   assert.ok(result.releaseNotesPath && fs.existsSync(result.releaseNotesPath));
   fs.rmSync(paths.root, { recursive: true, force: true });
 });
 
+// integration_id: ci-release-notes-input-resolution-source
 test('reports manual mode without external handoff', () => {
+  // Arrange
   const paths = setup('workflow_dispatch');
   fs.mkdirSync(paths.output);
   fs.writeFileSync(path.join(paths.output, 'release-notes.json'), '{}');
   fs.writeFileSync(path.join(paths.output, 'release-notes-approval.json'), '{}');
+  // Act
   const result = resolveReleaseNotesInput({ requestJson: paths.request, inputHandoffDirectory: paths.source, outputDirectory: paths.output, resolveOnly: true });
+  // Assert
   assert.equal(result.requiresExternal, false);
   fs.rmSync(paths.root, { recursive: true, force: true });
 });

@@ -6,8 +6,6 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
-// contract_id: contract.ci-handoff-integrity.outputs
-// integration_id: ci-handoff-integrity-contract-entrypoint
 
 const root = path.resolve(__dirname, '..');
 const createHandoff = () => {
@@ -31,18 +29,27 @@ const runBundled = (handoffRoot: string, sourceSha: string) => {
   return { output, result: spawnSync(process.execPath, [path.join(root, 'dist/index.js')], { cwd: root, env, encoding: 'utf8' }) };
 };
 
+// contract_id: contract.ci-handoff-integrity.outputs
+// integration_id: ci-handoff-integrity-contract-entrypoint
 test('bundled entrypoint validates a handoff', () => {
+  // Arrange
   const handoffRoot = createHandoff();
+  // Act
   const run = runBundled(handoffRoot, 'source');
+  // Assert
   assert.equal(run.result.status, 0);
   assert.match(fs.readFileSync(run.output, 'utf8'), /status<</);
   assert.match(fs.readFileSync(run.output, 'utf8'), /success/);
   fs.rmSync(handoffRoot, { recursive: true, force: true });
 });
 
+// integration_id: ci-handoff-integrity-entrypoint-regression
 test('bundled entrypoint fails an identity mismatch', () => {
+  // Arrange
   const handoffRoot = createHandoff();
+  // Act
   const run = runBundled(handoffRoot, 'other');
+  // Assert
   assert.notEqual(run.result.status, 0);
   assert.match(fs.readFileSync(run.output, 'utf8'), /failed/);
   fs.rmSync(handoffRoot, { recursive: true, force: true });

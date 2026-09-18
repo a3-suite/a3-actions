@@ -1,0 +1,14 @@
+version: 1
+name: contract-verifications
+subject_ref: subject.ci.quality-adapter
+verifications:
+  - id: verification.ci-quality-adapter.outputs
+    contract_id: contract.ci-quality-adapter.outputs
+    cases:
+      - id: read-only-adapter-execution
+        intent_id: quality-adapter-execution
+        input:
+          bundle-path: adapter.yml
+        checks:
+          - id: check-quality-adapter-status
+            guarantee_ref: quality-adapter-status-produced

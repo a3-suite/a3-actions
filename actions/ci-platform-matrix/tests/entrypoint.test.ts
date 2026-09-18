@@ -5,8 +5,6 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
-// contract_id: contract.ci-platform-matrix.outputs
-// integration_id: ci-platform-matrix-contract-entrypoint
 
 const root = path.resolve(__dirname, '..');
 
@@ -26,8 +24,13 @@ const runBundled = (manifest: string) => {
   return { outputPath, result, tempRoot };
 };
 
+// contract_id: contract.ci-platform-matrix.outputs
+// integration_id: ci-platform-matrix-contract-entrypoint
 test('bundled entrypoint emits the validated matrix', () => {
+  // Arrange
+  // Act
   const run = runBundled('platforms:\n  - id: linux-x64\n    runner: ubuntu-24.04\n    target: x86_64-unknown-linux-gnu\n');
+  // Assert
   assert.equal(run.result.status, 0);
   const output = fs.readFileSync(run.outputPath, 'utf8');
   assert.match(output, /^matrix=/);
@@ -35,16 +38,26 @@ test('bundled entrypoint emits the validated matrix', () => {
   fs.rmSync(run.tempRoot, { recursive: true, force: true });
 });
 
+// contract_id: contract.ci-platform-matrix.outputs
+// integration_id: ci-platform-matrix-contract-entrypoint
 test('bundled entrypoint fails closed for an unsupported runner', () => {
+  // Arrange
+  // Act
   const run = runBundled('platforms:\n  - id: linux-x64\n    runner: ubuntu-latest\n    target: x86_64-unknown-linux-gnu\n');
+  // Assert
   assert.notEqual(run.result.status, 0);
   assert.equal(fs.readFileSync(run.outputPath, 'utf8'), '');
   assert.match(`${run.result.stdout}\n${run.result.stderr}`, /platform-matrix-platform-0-runner-invalid/);
   fs.rmSync(run.tempRoot, { recursive: true, force: true });
 });
 
+// contract_id: contract.ci-platform-matrix.outputs
+// integration_id: ci-platform-matrix-contract-entrypoint
 test('bundled entrypoint rejects an oversized manifest before parsing', () => {
+  // Arrange
+  // Act
   const run = runBundled(`platforms:\n${' '.repeat(64 * 1024)}`);
+  // Assert
   assert.notEqual(run.result.status, 0);
   assert.equal(fs.readFileSync(run.outputPath, 'utf8'), '');
   assert.match(run.result.stderr, /platform-matrix-manifest-too-large/);

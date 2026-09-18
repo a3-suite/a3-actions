@@ -1,0 +1,42 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.release-publication-control
+contracts:
+  - id: contract.ci-release-publication-control.outputs
+    summary: A publication control operation exposes its completion status and verified request identity.
+    conditions:
+      - id: publication-operation-present
+        input_predicate:
+          kind: input
+          term: input.operation
+          op: present
+      - id: publication-request-verified
+        input_predicate:
+          kind: environment-ref
+          term: runtime-context.release-publication-request-verified
+          op: available
+    guarantees:
+      - id: publication-control-status-produced
+        when: publication-operation-present
+        observation_ref: observation.ci-release-publication-control.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: status
+      - id: publication-request-run-id-produced
+        when: publication-request-verified
+        observation_ref: observation.ci-release-publication-control.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: request-run-id
+    verification_intents:
+      - id: publication-request-binding
+        goal: A created publication request can be verified against workflow evidence.
+        guarantee_refs:
+          - publication-control-status-produced
+          - publication-request-run-id-produced

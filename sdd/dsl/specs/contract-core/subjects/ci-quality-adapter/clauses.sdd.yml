@@ -1,0 +1,27 @@
+version: 1
+name: contract-clauses
+subject_ref: subject.ci.quality-adapter
+contracts:
+  - id: contract.ci-quality-adapter.outputs
+    summary: A valid read-only descriptor produces an aggregate execution status.
+    conditions:
+      - id: quality-adapter-bundle-present
+        input_predicate:
+          kind: input
+          term: input.bundle-path
+          op: present
+    guarantees:
+      - id: quality-adapter-status-produced
+        when: quality-adapter-bundle-present
+        observation_ref: observation.ci-quality-adapter.outputs
+        claim:
+          kind: observable-result
+          op: present
+          target:
+            kind: observation_field
+            value: status
+    verification_intents:
+      - id: quality-adapter-execution
+        goal: A read-only descriptor executes in the selected source root and returns status.
+        guarantee_refs:
+          - quality-adapter-status-produced

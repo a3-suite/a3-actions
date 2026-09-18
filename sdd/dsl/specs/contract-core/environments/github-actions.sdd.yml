@@ -62,3 +62,7 @@ runtime_contexts:
     summary: An untracked distribution file exists or a Composite Action references an untracked script.
   - id: runtime-context.repository-action-catalog-inputs-available
     summary: Action definitions and the maintained README Action catalog are available to the catalog projection gate.
+  - id: runtime-context.release-publication-request-verified
+    summary: The publication request has been verified against the invoking workflow evidence and exposes the bound release request run ID.
+  - id: runtime-context.package-publication-request-succeeded
+    summary: The package publication request has been created or verified successfully and exposes its bound source identity.
