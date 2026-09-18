@@ -28,6 +28,10 @@ boundaries:
     direction: output
     externality: maintainer-owned
 runtime_contexts:
+  - id: runtime-context.platform-manifest-valid
+    summary: The selected manifest is available and satisfies the ci-platform-matrix Action input contract.
+  - id: runtime-context.platform-manifest-invalid
+    summary: The selected manifest is unavailable or does not satisfy the ci-platform-matrix Action input contract.
   - id: runtime-context.github-toolchain-matches-request
     summary: The selected mode is supported, every required CLI is available, and each installed version exactly matches the requested version.
   - id: runtime-context.github-toolchain-does-not-match-request

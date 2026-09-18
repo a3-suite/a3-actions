@@ -70,6 +70,12 @@ routes:
       contract_id: contract.ci-config-snapshot.outputs
     hops:
       - component_id: action-contracts
+  - route_id: action-contracts-platform-matrix
+    contract_ref:
+      subject_ref: subject.ci.platform-matrix
+      contract_id: contract.ci-platform-matrix.outputs
+    hops:
+      - component_id: action-contracts
   - route_id: action-contracts-handoff-integrity
     contract_ref:
       subject_ref: subject.ci.handoff-integrity

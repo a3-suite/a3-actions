@@ -29,6 +29,7 @@ uses: a3-suite/a3-actions/actions/<action-name>@<40-char-commit-sha>
 | [`ci-github-toolchain-verifier`](actions/ci-github-toolchain-verifier/README.md) | GitHub CI で利用する `gh`、`jq`、`sha256sum` の存在と完全一致バージョンを検証するときに使います。 | Verify exact gh, jq, and sha256sum versions for GitHub CI |
 | [`ci-rust-release-build`](actions/ci-rust-release-build/README.md) | 固定 source の Rust CLI を、authority と platform manifest に拘束された toolchain／target で buildし、 Release archive、checksum、`asset-manifest.json` を新しい出力ディレクトリへ生成して検証します。 | Build, package, and verify a Rust CLI release asset |
 | [`ci-rust-source-gate`](actions/ci-rust-source-gate/README.md) | Rust CLI の Release authority に記録された language profile と source SHA を、現在の checkout に照合します。 | Verify Rust release authority and checked-out source identity |
+| [`ci-platform-matrix`](actions/ci-platform-matrix/README.md) | `ci-platform-matrix`は、信頼済みcheckout内のplatform manifestを検証し、GitHub Actionsの strategyへ渡せる`{"include":[...]}`形式のJSONを返します。workflowのjob、runner選択、 permissions、matrix適用は所有しません。 | Validate a CI platform manifest and output a deterministic GitHub matrix. |
 
 <!-- action-catalog:end -->
 

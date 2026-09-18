@@ -14,8 +14,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('collects bundled and composite Actions with their distribution contract', () => {
   const actions = collectActions(root);
-  assert.equal(actions.length, 13);
-  assert.equal(actions.filter((action) => action.distPath).length, 10);
+  assert.equal(actions.length, 14);
+  assert.equal(actions.filter((action) => action.distPath).length, 11);
   assert.deepEqual(
     actions.filter((action) => action.runtime === 'composite').map((action) => action.name),
     ['ci-github-toolchain-verifier', 'ci-rust-release-build', 'ci-rust-source-gate'],

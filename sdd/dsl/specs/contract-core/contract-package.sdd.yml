@@ -14,6 +14,8 @@ subject_scopes:
     path: subjects/ci-change-scope/
   - subject_id: subject.ci.config-snapshot
     path: subjects/ci-config-snapshot/
+  - subject_id: subject.ci.platform-matrix
+    path: subjects/ci-platform-matrix/
   - subject_id: subject.ci.handoff-integrity
     path: subjects/ci-handoff-integrity/
   - subject_id: subject.ci.quality-summary
