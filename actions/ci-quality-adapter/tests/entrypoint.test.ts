@@ -5,7 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
-const descriptor = (boundary = 'read-only'): string => `schemaVersion: "1"\nkind: ci-adapter-bundle\nid: node-quality\ncontract: quality-scripts\nlanguageProfiles: [node]\nprovider: github\nexecutionBoundary: ${boundary}\nsourceCheckout: fixed-source\ncopyable: true\nowner: ci\nassets:\n  - id: config\n    destination: .ci/config.yml\nprojectSettings:\n  requiredFiles: []\n  requiredScripts: []\n  requiredEnvironmentPaths: []\ntoolchain:\n  versionEnv: CI_TOOLCHAIN_VERSION\n  verify:\n    command: node\n    args: [--version]\n    expectedOutput: "^v\${CI_TOOLCHAIN_VERSION}$"\npreparation:\n  - id: prepare\n    command: node\n    args: [-e, "process.exit(0)"]\ncommands:\n  - id: test\n    command: node\n    args: [-e, "process.exit(0)"]\n`;
+const descriptor = (boundary = 'read-only'): string => `schemaVersion: "1"\nkind: ci-adapter-bundle\nid: node-quality\ncontract: quality-scripts\nlanguageProfiles: [node]\nprovider: github\nexecutionBoundary: ${boundary}\nsourceCheckout: fixed-source\ncopyable: true\nowner: ci\nassets: []\nprojectSettings:\n  requiredFiles: []\n  requiredScripts: []\n  requiredEnvironmentPaths: []\ntoolchain:\n  versionEnv: CI_TOOLCHAIN_VERSION\n  verify:\n    command: node\n    args: [--version]\n    expectedOutput: "^v\${CI_TOOLCHAIN_VERSION}$"\npreparation:\n  - id: prepare\n    command: node\n    args: [-e, "process.exit(0)"]\ncommands:\n  - id: test\n    command: node\n    args: [-e, "process.exit(0)"]\n`;
 
 const runAction = (root: string, content: string) => {
   const descriptor = path.join(root, 'adapter.yml');

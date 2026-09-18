@@ -52,10 +52,11 @@ export const loadAdapterBundle = (bundlePath: string): AdapterBundle => {
   if (value.toolchain.versionEnv !== 'CI_TOOLCHAIN_VERSION') throw new Error('quality-adapter-toolchain-invalid');
   const expectedOutput = text(value.toolchain.verify.expectedOutput, 'toolchain-expected-output');
   if (!expectedOutput.includes('${CI_TOOLCHAIN_VERSION}')) throw new Error('quality-adapter-toolchain-binding-invalid');
-  const assets = Array.isArray(value.assets) ? value.assets.map((item) => {
+  if (!Array.isArray(value.assets)) throw new Error('quality-adapter-assets-invalid');
+  const assets = value.assets.map((item) => {
     if (!record(item) || item.source !== undefined) throw new Error('quality-adapter-asset-invalid');
     return { id: text(item.id, 'asset-id'), destination: text(item.destination, 'asset-destination') };
-  }) : [];
+  });
   const bundle: AdapterBundle = {
     schemaVersion: '1', kind: 'ci-adapter-bundle', id: text(value.id, 'id'), contract: text(value.contract, 'contract'),
     languageProfiles: strings(value.languageProfiles, 'language-profiles'), provider: text(value.provider, 'provider'),
@@ -64,7 +65,7 @@ export const loadAdapterBundle = (bundlePath: string): AdapterBundle => {
     toolchain: { versionEnv: 'CI_TOOLCHAIN_VERSION', verify: { ...command({ ...value.toolchain.verify, id: 'toolchain-verify' }), expectedOutput } },
     preparation: commands(value.preparation, 'preparation'), commands: commands(value.commands, 'commands'),
   };
-  if (bundle.contract !== 'quality-scripts' || !bundle.assets.length) throw new Error('quality-adapter-contract-invalid');
+  if (bundle.contract !== 'quality-scripts') throw new Error('quality-adapter-contract-invalid');
   const ids = new Set<string>();
   const assetIds = new Set<string>();
   for (const asset of bundle.assets) {

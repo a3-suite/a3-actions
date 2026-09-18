@@ -24,6 +24,40 @@ test('executes a read-only adapter in the source root', () => {
 });
 
 // integration_id: ci-quality-adapter-source
+test('accepts a quality descriptor without copied assets', () => {
+  // Arrange
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-adapter-no-assets-'));
+  const bundlePath = path.join(root, 'adapter.yml');
+  const descriptorWithoutAssets = descriptor.replace(
+    'assets:\n  - id: config\n    destination: .ci/config.yml',
+    'assets: []',
+  );
+  fs.writeFileSync(bundlePath, descriptorWithoutAssets);
+
+  // Act
+  const result = executeAdapter(loadAdapterBundle(bundlePath), { sourceRoot: root, toolchainVersion: process.version.slice(1), requireTrustedProjectScripts: false });
+
+  // Assert
+  assert.equal(result.status, 'success');
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+// integration_id: ci-quality-adapter-source
+test('rejects a non-array asset declaration', () => {
+  // Arrange
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-adapter-invalid-assets-'));
+  const bundlePath = path.join(root, 'adapter.yml');
+  fs.writeFileSync(bundlePath, descriptor.replace(
+    'assets:\n  - id: config\n    destination: .ci/config.yml',
+    'assets: invalid',
+  ));
+
+  // Act / Assert
+  assert.throws(() => loadAdapterBundle(bundlePath), /quality-adapter-assets-invalid/);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+// integration_id: ci-quality-adapter-source
 test('rejects a trusted script mismatch', () => {
   // Arrange
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-adapter-'));
