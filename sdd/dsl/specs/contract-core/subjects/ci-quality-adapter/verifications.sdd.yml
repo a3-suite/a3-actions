@@ -12,3 +12,10 @@ verifications:
         checks:
           - id: check-quality-adapter-status
             guarantee_ref: quality-adapter-status-produced
+      - id: writable-adapter-rejected
+        intent_id: quality-adapter-rejected
+        input:
+          bundle-path: writable-adapter.yml
+        checks:
+          - id: check-quality-adapter-failure-status
+            guarantee_ref: quality-adapter-failure-propagated

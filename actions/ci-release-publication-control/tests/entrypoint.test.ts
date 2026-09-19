@@ -36,3 +36,25 @@ test('bundled entrypoint creates and verifies a publication request', () => {
   assert.match(fs.readFileSync(output, 'utf8'), /request-run-id<<[^\n]+\n11\n/);
   fs.rmSync(root, { recursive: true, force: true });
 });
+
+// contract_id: contract.ci-release-publication-control.outputs
+// integration_id: ci-release-publication-control-contract-entrypoint
+test('bundled entrypoint rejects a changed approval ID', () => {
+  // Arrange
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-publication-entry-rejected-'));
+  const output = path.join(root, 'output');
+  const bodyDigest = crypto.createHash('sha256').update('# Release\n').digest('hex');
+  fs.writeFileSync(output, '');
+  fs.mkdirSync(path.join(root, 'authority'));
+  fs.writeFileSync(path.join(root, 'authority/publication-request.json'), JSON.stringify({ approvalId: 'approval-1', approvalExpiresAt: '2999-01-01T00:00:00Z', releaseNotesBodySha256: bodyDigest }));
+  const env = { ...process.env, GITHUB_ACTIONS: 'true', GITHUB_OUTPUT: output, INPUT_OPERATION: 'verify-approval', 'INPUT_ROOT-DIRECTORY': root, 'INPUT_APPROVAL-ID': 'changed', 'INPUT_APPROVAL-BODY-SHA256': bodyDigest } as Record<string, string>;
+  const entrypoint = path.resolve(__dirname, '../dist/index.js');
+
+  // Act
+  const result = spawnSync(process.execPath, [entrypoint], { env, encoding: 'utf8' });
+
+  // Assert
+  assert.notEqual(result.status, 0);
+  assert.match(fs.readFileSync(output, 'utf8'), /failed/);
+  fs.rmSync(root, { recursive: true, force: true });
+});

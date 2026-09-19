@@ -66,3 +66,7 @@ runtime_contexts:
     summary: The publication request has been verified against the invoking workflow evidence and exposes the bound release request run ID.
   - id: runtime-context.package-publication-request-succeeded
     summary: The package publication request has been created or verified successfully and exposes its bound source identity.
+  - id: runtime-context.action-input-invalid
+    summary: An Action invocation contains invalid, unsafe, or authority-mismatching input.
+  - id: runtime-context.action-input-insufficient
+    summary: An Action input is insufficient to resolve a trustworthy result.

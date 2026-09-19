@@ -7,11 +7,22 @@ command:
     - sdd
     - check
   summary: Validate the adopted SDD artifacts for one project workspace
+  usage_targets:
+    - id: check
+      summary: Validate the adopted SDD artifacts for one project workspace
+      option_bindings:
+        - option_id: owner-skill-discovery
+          presence: optional
+        - option_id: workspace-root
+          presence: optional
+        - option_id: format
+          presence: optional
   option_groups:
     - id: common
       title: Common options
       options:
+        - owner-skill-discovery
         - workspace-root
         - format
   help:
-    usage: a3-sdd sdd check --workspace-root <PROJECT_ROOT> --format <FORMAT>
+    usage: a3-sdd sdd check [--owner-skill-discovery <PATH>] [--workspace-root <PATH>] [--format <FORMAT>]

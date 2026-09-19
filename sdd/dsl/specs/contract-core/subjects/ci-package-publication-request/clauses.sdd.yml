@@ -15,6 +15,11 @@ contracts:
           kind: environment-ref
           term: runtime-context.package-publication-request-succeeded
           op: available
+      - id: package-request-rejected
+        environment_predicate:
+          kind: environment-ref
+          target_ref: runtime-context.action-input-invalid
+          op: available
     guarantees:
       - id: package-request-status-produced
         when: package-request-operation-present
@@ -34,9 +39,27 @@ contracts:
           target:
             kind: observation_field
             value: source-sha
+      - id: package-request-failure-propagated
+        when: package-request-rejected
+        observation_ref: observation.ci-package-publication-request.result
+        claim:
+          kind: observable-value
+          op: in
+          relation:
+            left:
+              kind: observation_field
+              value: outcome
+            right:
+              kind: value_set
+              values:
+                - failure
     verification_intents:
       - id: package-request-source-binding
         goal: The handoff source identity remains bound through create and verify.
         guarantee_refs:
           - package-request-status-produced
           - package-request-source-produced
+      - id: package-request-rejected
+        goal: A package publication request not bound to the expected source fails verification.
+        guarantee_refs:
+          - package-request-failure-propagated

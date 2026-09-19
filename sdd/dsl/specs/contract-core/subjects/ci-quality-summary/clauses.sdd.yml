@@ -10,6 +10,11 @@ contracts:
           kind: input
           term: input.summary-json
           op: present
+      - id: quality-summary-rejected
+        environment_predicate:
+          kind: environment-ref
+          target_ref: runtime-context.action-input-invalid
+          op: available
     guarantees:
       - id: quality-summary-status-produced
         when: summary-input-present
@@ -20,8 +25,26 @@ contracts:
           target:
             kind: observation_field
             value: status
+      - id: quality-summary-failure-propagated
+        when: quality-summary-rejected
+        observation_ref: observation.ci-quality-summary.result
+        claim:
+          kind: observable-value
+          op: in
+          relation:
+            left:
+              kind: observation_field
+              value: outcome
+            right:
+              kind: value_set
+              values:
+                - failure
     verification_intents:
       - id: quality-summary-output-set
         goal: A quality result produces its aggregate status output.
         guarantee_refs:
           - quality-summary-status-produced
+      - id: quality-summary-rejected
+        goal: Missing or unresolved quality evidence fails summary publication.
+        guarantee_refs:
+          - quality-summary-failure-propagated

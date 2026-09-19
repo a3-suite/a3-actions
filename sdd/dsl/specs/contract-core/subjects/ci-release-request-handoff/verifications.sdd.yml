@@ -18,3 +18,11 @@ verifications:
         checks:
           - id: check-request-handoff-output
             guarantee_ref: request-handoff-output-produced
+      - id: tag-ref-mismatch-rejected
+        intent_id: request-handoff-rejected
+        input:
+          tag: v1.2.3
+          ref: refs/tags/v1.2.4
+        checks:
+          - id: check-request-handoff-failure
+            guarantee_ref: request-handoff-failure-propagated

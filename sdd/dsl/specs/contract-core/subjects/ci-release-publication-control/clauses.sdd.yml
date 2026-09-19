@@ -15,6 +15,11 @@ contracts:
           kind: environment-ref
           term: runtime-context.release-publication-request-verified
           op: available
+      - id: publication-control-rejected
+        environment_predicate:
+          kind: environment-ref
+          target_ref: runtime-context.action-input-invalid
+          op: available
     guarantees:
       - id: publication-control-status-produced
         when: publication-operation-present
@@ -34,9 +39,27 @@ contracts:
           target:
             kind: observation_field
             value: request-run-id
+      - id: publication-control-failure-propagated
+        when: publication-control-rejected
+        observation_ref: observation.ci-release-publication-control.result
+        claim:
+          kind: observable-value
+          op: in
+          relation:
+            left:
+              kind: observation_field
+              value: outcome
+            right:
+              kind: value_set
+              values:
+                - failure
     verification_intents:
       - id: publication-request-binding
         goal: A created publication request can be verified against workflow evidence.
         guarantee_refs:
           - publication-control-status-produced
           - publication-request-run-id-produced
+      - id: publication-control-rejected
+        goal: Publication control fails when approval or provenance no longer matches the verified request.
+        guarantee_refs:
+          - publication-control-failure-propagated

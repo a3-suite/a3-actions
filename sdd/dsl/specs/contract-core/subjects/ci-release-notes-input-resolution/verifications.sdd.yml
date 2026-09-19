@@ -13,3 +13,11 @@ verifications:
         checks:
           - id: check-notes-resolution-output
             guarantee_ref: notes-resolution-output-produced
+      - id: existing-normalized-handoff-rejected
+        intent_id: notes-resolution-rejected
+        input:
+          source-path: release-notes.json
+          destination-path: existing-release-notes.json
+        checks:
+          - id: check-notes-resolution-failure
+            guarantee_ref: notes-resolution-failure-propagated

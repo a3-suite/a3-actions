@@ -35,3 +35,26 @@ test('bundled entrypoint creates and verifies a request', () => {
   assert.match(fs.readFileSync(output, 'utf8'), new RegExp(`source-sha<<[^\\n]+\\n${'a'.repeat(40)}\\n`));
   fs.rmSync(root, { recursive: true, force: true });
 });
+
+// contract_id: contract.ci-package-publication-request.outputs
+// integration_id: ci-package-publication-request-contract-entrypoint
+test('bundled entrypoint rejects a source SHA mismatch', () => {
+  // Arrange
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-package-entry-rejected-'));
+  const output = path.join(root, 'output');
+  const request = path.join(root, 'request.json');
+  fs.writeFileSync(output, '');
+  const entrypoint = path.resolve(__dirname, '../dist/index.js');
+  const env = { ...process.env, GITHUB_ACTIONS: 'true', GITHUB_OUTPUT: output, INPUT_OPERATION: 'create', 'INPUT_REQUEST-PATH': request, 'INPUT_SOURCE-SHA': 'a'.repeat(40), INPUT_VERSION: '1.2.3', 'INPUT_TARGET-IDENTITY': 'npm:pkg', 'INPUT_LANGUAGE-PROFILE': 'node', INPUT_TOOLCHAIN: '22' } as Record<string, string>;
+  const created = spawnSync(process.execPath, [entrypoint], { env, encoding: 'utf8' });
+  if (created.status !== 0) throw new Error('package request test setup failed');
+  fs.writeFileSync(output, '');
+
+  // Act
+  const result = spawnSync(process.execPath, [entrypoint], { env: { ...env, INPUT_OPERATION: 'verify', 'INPUT_EXPECTED-SOURCE-SHA': 'b'.repeat(40) }, encoding: 'utf8' });
+
+  // Assert
+  assert.notEqual(result.status, 0);
+  assert.match(fs.readFileSync(output, 'utf8'), /failed/);
+  fs.rmSync(root, { recursive: true, force: true });
+});

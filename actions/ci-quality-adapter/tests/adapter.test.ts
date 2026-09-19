@@ -131,3 +131,58 @@ test('runs commands from the fixed source root', () => {
   assert.equal(result.results[1].stdout, fs.realpathSync(root));
   fs.rmSync(root, { recursive: true, force: true });
 });
+
+// integration_id: ci-quality-adapter-source
+test('rejects invalid adapter contract inputs', () => {
+  // Arrange
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-adapter-invalid-contract-'));
+  const cases = [
+    ['metadata', descriptor.replace('schemaVersion: "1"', 'schemaVersion: "2"'), /metadata-invalid/],
+    ['structure', descriptor.replace('projectSettings:', 'projectSettingsMissing:'), /structure-invalid/],
+    ['execution boundary', descriptor.replace('executionBoundary: read-only', 'executionBoundary: write'), /execution-boundary-invalid/],
+    ['source checkout', descriptor.replace('sourceCheckout: fixed-source', 'sourceCheckout: moving'), /source-checkout-invalid/],
+    ['copyable', descriptor.replace('copyable: true', 'copyable: yes'), /copyable-invalid/],
+    ['toolchain variable', descriptor.replace('versionEnv: CI_TOOLCHAIN_VERSION', 'versionEnv: OTHER_VERSION'), /toolchain-invalid/],
+    ['toolchain binding', descriptor.replace(/expectedOutput: .+/, 'expectedOutput: "^v1$"'), /toolchain-binding-invalid/],
+    ['asset source', descriptor.replace('destination: .ci/config.yml', 'source: config.yml\n    destination: .ci/config.yml'), /asset-invalid/],
+    ['asset destination', descriptor.replace('destination: .ci/config.yml', 'destination: config.yml'), /asset-destination-invalid/],
+    ['source command', descriptor.replace(/command: node\n    args: \[--version\]\n    expectedOutput/, 'command: skills/node/bin/node\n    args: [--version]\n    expectedOutput'), /command-source-reference/],
+  ] as const;
+  const failures: unknown[] = [];
+
+  // Act
+  for (const [name, content] of cases) {
+    const bundlePath = path.join(root, `${name.replaceAll(' ', '-')}.yml`);
+    fs.writeFileSync(bundlePath, content);
+    try { loadAdapterBundle(bundlePath); } catch (error) { failures.push(error); }
+  }
+
+  // Assert
+  assert.equal(failures.length, cases.length);
+  failures.forEach((failure, index) => assert.match(String(failure), cases[index][2]));
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+// integration_id: ci-quality-adapter-source
+test('rejects invalid adapter execution inputs', () => {
+  // Arrange
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-adapter-invalid-execution-'));
+  const bundlePath = path.join(root, 'adapter.yml');
+  fs.writeFileSync(bundlePath, descriptor);
+  const bundle = loadAdapterBundle(bundlePath);
+  const cases = [
+    [{ sourceRoot: root, toolchainVersion: '', requireTrustedProjectScripts: false }, /toolchain-version-missing/],
+    [{ sourceRoot: root, toolchainVersion: process.version.slice(1), languageProfile: 'rust', requireTrustedProjectScripts: false }, /language-profile-mismatch/],
+  ] as const;
+  const failures: unknown[] = [];
+
+  // Act
+  for (const [options] of cases) {
+    try { executeAdapter(bundle, options); } catch (error) { failures.push(error); }
+  }
+
+  // Assert
+  assert.equal(failures.length, cases.length);
+  failures.forEach((failure, index) => assert.match(String(failure), cases[index][1]));
+  fs.rmSync(root, { recursive: true, force: true });
+});

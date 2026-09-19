@@ -89,8 +89,23 @@ test('bundled entrypoint writes matching evidence and outputs', () => {
   }
 });
 
+// contract_id: contract.ci-quality-summary.outputs
+// integration_id: ci-quality-summary-contract-entrypoint
+test('bundled entrypoint rejects a missing summary path', () => {
+  // Arrange
+  // Act
+  const missingPath = runBundled(successInput, false);
+  try {
+    // Assert
+    assert.notEqual(missingPath.result.status, 0);
+    assert.equal(outputValue(fs.readFileSync(missingPath.outputPath, 'utf8'), 'status'), 'failed');
+  } finally {
+    fs.rmSync(missingPath.tempRoot, { recursive: true, force: true });
+  }
+});
+
 // integration_id: ci-quality-summary-entrypoint-regression
-test('bundled entrypoint fails unresolved and missing-path inputs', () => {
+test('bundled entrypoint fails unresolved and invalid path relationships', () => {
   // Arrange
   const unresolvedInput = {
     jobs: [{
@@ -102,22 +117,18 @@ test('bundled entrypoint fails unresolved and missing-path inputs', () => {
   };
   // Act
   const unresolved = runBundled(unresolvedInput);
-  const missingPath = runBundled(successInput, false);
   const samePath = runBundled(successInput, true, 'same');
   const hardlink = runBundled(successInput, true, 'hardlink');
   try {
     // Assert
     assert.notEqual(unresolved.result.status, 0);
     assert.equal(outputValue(fs.readFileSync(unresolved.outputPath, 'utf8'), 'status'), 'unresolved');
-    assert.notEqual(missingPath.result.status, 0);
-    assert.equal(outputValue(fs.readFileSync(missingPath.outputPath, 'utf8'), 'status'), 'failed');
     assert.notEqual(samePath.result.status, 0);
     assert.equal(outputValue(fs.readFileSync(samePath.outputPath, 'utf8'), 'status'), 'failed');
     assert.notEqual(hardlink.result.status, 0);
     assert.equal(outputValue(fs.readFileSync(hardlink.outputPath, 'utf8'), 'status'), 'failed');
   } finally {
     fs.rmSync(unresolved.tempRoot, { recursive: true, force: true });
-    fs.rmSync(missingPath.tempRoot, { recursive: true, force: true });
     fs.rmSync(samePath.tempRoot, { recursive: true, force: true });
     fs.rmSync(hardlink.tempRoot, { recursive: true, force: true });
   }

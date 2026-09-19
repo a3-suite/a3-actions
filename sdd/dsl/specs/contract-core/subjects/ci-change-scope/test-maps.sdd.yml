@@ -9,3 +9,10 @@ test_maps:
         symbol: bundled entrypoint reports a valid range
         check_refs:
           - check-change-scope-status
+  - verification_id: verification.ci-change-scope.outputs
+    case_id: invalid-sha-unresolved
+    tests:
+      - path: actions/ci-change-scope/tests/entrypoint.test.ts
+        symbol: bundled entrypoint fails open for an invalid SHA
+        check_refs:
+          - check-change-scope-unresolved-status

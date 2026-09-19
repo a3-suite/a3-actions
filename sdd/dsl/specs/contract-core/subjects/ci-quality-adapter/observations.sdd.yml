@@ -16,3 +16,14 @@ observations:
         - selector: result-path
           kind: observation_field
           meaning: Path to the quality adapter result JSON.
+  - id: observation.ci-quality-adapter.result
+    summary: The Action exposes its failed step outcome when an adapter contract is rejected.
+    boundary:
+      ref: boundary.action-output
+    value:
+      root: action.step-result
+      kind: object
+      fields:
+        - selector: outcome
+          kind: observation_field
+          meaning: Failure outcome of the rejected quality adapter step.
