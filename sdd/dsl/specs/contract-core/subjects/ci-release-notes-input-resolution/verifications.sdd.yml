@@ -8,7 +8,6 @@ verifications:
       - id: tag-notes-resolution
         intent_id: notes-resolution-output-set
         input:
-          request-json: release-request/release-request.json
           input-handoff-directory: release-notes-handoff
           output-directory: release-request
         checks:

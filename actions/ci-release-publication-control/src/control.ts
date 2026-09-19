@@ -99,14 +99,12 @@ const verifyProvenance = (input: ControlInput): ControlResult => {
   if (publicationRequest.workflowHeadSha !== publicationRun.head_sha) throw new Error('publication request head SHA mismatch');
   if (publicationRequest.releaseRequestRunId !== releaseRunId || releaseRequest.request_run_id !== releaseRunId) throw new Error('release request run ID mismatch');
   if (releaseRequest.schema !== 'ci.release-request.v1' || !/^[a-f0-9]{40}$/.test(releaseRequest.source_sha)) throw new Error('release request schema is invalid');
-  const tagMode = releaseRequest.event === 'tag';
-  const manualMode = releaseRequest.event === 'workflow_dispatch';
-  if (!tagMode && !manualMode) throw new Error('release request event is invalid');
-  const expectedName = scalar(input, tagMode ? 'releaseRequestTagWorkflowName' : 'releaseRequestWorkflowName');
-  const expectedPath = scalar(input, tagMode ? 'releaseRequestTagWorkflowPath' : 'releaseRequestWorkflowPath');
+  if (releaseRequest.event !== 'tag') throw new Error('release request event is invalid');
+  const expectedName = scalar(input, 'releaseRequestTagWorkflowName');
+  const expectedPath = scalar(input, 'releaseRequestTagWorkflowPath');
   const releaseRunPath = typeof releaseRun.path === 'string' ? releaseRun.path.split('@', 1)[0] : '';
-  if (releaseRun.name !== expectedName || releaseRunPath !== expectedPath || releaseRun.event !== (tagMode ? 'push' : 'workflow_dispatch')) throw new Error('release request workflow provenance is invalid');
-  if (tagMode && (releaseRequest.ref !== `refs/tags/${releaseRequest.tag}` || releaseRun.head_sha !== releaseRequest.source_sha)) throw new Error('tag request source provenance is invalid');
+  if (releaseRun.name !== expectedName || releaseRunPath !== expectedPath || releaseRun.event !== 'push') throw new Error('release request workflow provenance is invalid');
+  if (releaseRequest.ref !== `refs/tags/${releaseRequest.tag}` || releaseRun.head_sha !== releaseRequest.source_sha) throw new Error('tag request source provenance is invalid');
   const body = notes.body;
   if (notes.schema !== 'ci.release-notes.v1' || notes.source_contract !== 'git.release-flow' || notes.source_field !== 'body' || typeof body !== 'string' || !body) throw new Error('release notes schema is invalid');
   const bodySha256 = sha256(body);
@@ -115,13 +113,6 @@ const verifyProvenance = (input: ControlInput): ControlResult => {
   if (notes.release_identity !== publicationRequest.releaseIdentity || approval.release_identity !== publicationRequest.releaseIdentity || releaseRequest.tag !== publicationRequest.releaseIdentity) throw new Error('release identity mismatch');
   if (approval.approval_id !== publicationRequest.approvalId || approval.approval_id !== approvalId) throw new Error('approval ID mismatch');
   parseFutureRfc3339(publicationRequest.approvalExpiresAt);
-  if (manualMode) {
-    const manualNotes = readJson(rootPath(input, 'release-request/release-notes.json'));
-    const manualApproval = readJson(rootPath(input, 'release-request/release-notes-approval.json'));
-    if (releaseRequest.release_notes !== body || releaseRequest.approval_id !== publicationRequest.approvalId || releaseRequest.approval_expires_at !== publicationRequest.approvalExpiresAt) throw new Error('manual request binding mismatch');
-    if (manualNotes.release_identity !== notes.release_identity || manualNotes.body !== body || manualNotes.body_sha256 !== bodySha256) throw new Error('manual release notes handoff mismatch');
-    if (manualApproval.release_identity !== approval.release_identity || manualApproval.body_sha256 !== bodySha256 || manualApproval.approval_id !== approvalId) throw new Error('manual release notes approval mismatch');
-  }
   return {};
 };
 

@@ -5,13 +5,16 @@ verifications:
   - id: verification.ci-release-request-handoff.outputs
     contract_id: contract.ci-release-request-handoff.outputs
     cases:
-      - id: manual-request-handoff
+      - id: tag-request-handoff
         intent_id: request-handoff-output-set
         input:
-          mode: manual
           output-directory: release-request
           tag-source-sha: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           tag-object-sha: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          github-ref: refs/tags/v1.2.3
+          github-ref-name: v1.2.3
+          request-run-id: "42"
+          request-actor: release-operator
         checks:
           - id: check-request-handoff-output
             guarantee_ref: request-handoff-output-produced

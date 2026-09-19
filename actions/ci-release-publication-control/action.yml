@@ -35,12 +35,6 @@ inputs:
   publication-request-run-id:
     required: false
     description: Publication request run ID used by provenance verification.
-  release-request-workflow-name:
-    required: false
-    description: Manual release request workflow name.
-  release-request-workflow-path:
-    required: false
-    description: Manual release request workflow path.
   release-request-tag-workflow-name:
     required: false
     description: Tag release request workflow name.
