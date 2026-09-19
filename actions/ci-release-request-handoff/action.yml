@@ -28,5 +28,5 @@ outputs:
   request-digest:
     description: SHA-256 digest file path for release-request.json.
 runs:
-  using: node20
+  using: node24
   main: dist/index.js

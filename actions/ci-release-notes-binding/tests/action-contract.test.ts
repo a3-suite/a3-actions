@@ -13,5 +13,5 @@ test('action.yml exposes the release notes binding contract', () => {
   // Assert
   assert.equal(action.name, 'ci-release-notes-binding');
   assert.deepEqual(Object.keys(action.outputs), ['status', 'release-identity', 'digest', 'approval-id']);
-  assert.equal(action.runs.using, 'node20');
+  assert.equal(action.runs.using, 'node24');
 });

@@ -16,5 +16,5 @@ test('action contract exposes create and verify inputs', () => {
   assert.equal(action.name, 'ci-package-publication-request');
   assert.equal(action.inputs.operation.required, true);
   assert.deepEqual(Object.keys(action.outputs), ['status', 'request-path', 'source-sha', 'version', 'target-identity', 'language-profile', 'toolchain']);
-  assert.equal(action.runs.using, 'node20');
+  assert.equal(action.runs.using, 'node24');
 });

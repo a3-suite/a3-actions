@@ -20,6 +20,6 @@ test('action.yml exposes the platform matrix contract', () => {
   assert.match(action.inputs['manifest-path'].description, /id and target values must each be unique/);
   assert.deepEqual(Object.keys(action.outputs), ['matrix']);
   assert.match(action.outputs.matrix.description, /failures do not produce this output/);
-  assert.equal(action.runs.using, 'node20');
+  assert.equal(action.runs.using, 'node24');
   assert.equal(action.runs.main, 'dist/index.js');
 });

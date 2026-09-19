@@ -14,5 +14,5 @@ outputs:
       Compact JSON object containing the validated include matrix. Set only after every entry
       passes validation; failures do not produce this output.
 runs:
-  using: node20
+  using: node24
   main: dist/index.js

@@ -17,4 +17,5 @@ test('action contract keeps workflow trust inputs explicit', () => {
   assert.equal(action.inputs['source-root'].required, true);
   assert.equal(action.inputs['trusted-project-root'].required, false);
   assert.deepEqual(Object.keys(action.outputs), ['status', 'result-path']);
+  assert.equal(action.runs.using, 'node24');
 });

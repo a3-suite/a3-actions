@@ -14,5 +14,5 @@ test('action.yml exposes the publish version contract', () => {
   assert.equal(action.name, 'ci-publish-version');
   assert.deepEqual(Object.keys(action.inputs), ['version-plan-json']);
   assert.deepEqual(Object.keys(action.outputs), ['status', 'publish-version']);
-  assert.equal(action.runs.using, 'node20');
+  assert.equal(action.runs.using, 'node24');
 });

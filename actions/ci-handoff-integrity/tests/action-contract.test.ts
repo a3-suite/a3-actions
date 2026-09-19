@@ -13,5 +13,5 @@ test('action.yml exposes the handoff integrity contract', () => {
   // Assert
   assert.equal(action.name, 'ci-handoff-integrity');
   assert.deepEqual(Object.keys(action.outputs), ['status', 'descriptor', 'manifest', 'manifest-digest', 'entries']);
-  assert.equal(action.runs.using, 'node20');
+  assert.equal(action.runs.using, 'node24');
 });

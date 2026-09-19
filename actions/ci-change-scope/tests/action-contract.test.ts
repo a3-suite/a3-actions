@@ -13,5 +13,5 @@ test('action.yml exposes the change scope contract', () => {
   // Assert
   assert.equal(action.name, 'ci-change-scope');
   assert.deepEqual(Object.keys(action.outputs), ['status', 'run-ci', 'run-docs', 'files', 'docs-files', 'other-files']);
-  assert.equal(action.runs.using, 'node20');
+  assert.equal(action.runs.using, 'node24');
 });

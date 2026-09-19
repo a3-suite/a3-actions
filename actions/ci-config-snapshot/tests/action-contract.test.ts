@@ -14,5 +14,5 @@ test('action.yml exposes the config snapshot contract', () => {
   assert.equal(action.name, 'ci-config-snapshot');
   assert.deepEqual(Object.keys(action.inputs), ['sources-json', 'snapshot-path', 'output-path']);
   assert.deepEqual(Object.keys(action.outputs), ['status', 'snapshot-path', 'digest']);
-  assert.equal(action.runs.using, 'node20');
+  assert.equal(action.runs.using, 'node24');
 });
