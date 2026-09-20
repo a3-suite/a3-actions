@@ -38,6 +38,7 @@ jobs:
 
           major_alias="v${BASH_REMATCH[1]}"
           minor_alias="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
+          git fetch --force --no-tags origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
           source_sha="$(git rev-parse "${RELEASE_TAG}^{commit}")"
 
           if [[ "$(git cat-file -t "$RELEASE_TAG")" != tag ]]; then
