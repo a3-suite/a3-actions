@@ -28,6 +28,10 @@ boundaries:
     direction: output
     externality: maintainer-owned
 runtime_contexts:
+  - id: runtime-context.platform-manifest-valid
+    summary: The selected manifest is available and satisfies the ci-platform-matrix Action input contract.
+  - id: runtime-context.platform-manifest-invalid
+    summary: The selected manifest is unavailable or does not satisfy the ci-platform-matrix Action input contract.
   - id: runtime-context.github-toolchain-matches-request
     summary: The selected mode is supported, every required CLI is available, and each installed version exactly matches the requested version.
   - id: runtime-context.github-toolchain-does-not-match-request
@@ -58,3 +62,11 @@ runtime_contexts:
     summary: An untracked distribution file exists or a Composite Action references an untracked script.
   - id: runtime-context.repository-action-catalog-inputs-available
     summary: Action definitions and the maintained README Action catalog are available to the catalog projection gate.
+  - id: runtime-context.release-publication-request-verified
+    summary: The publication request has been verified against the invoking workflow evidence and exposes the bound release request run ID.
+  - id: runtime-context.package-publication-request-succeeded
+    summary: The package publication request has been created or verified successfully and exposes its bound source identity.
+  - id: runtime-context.action-input-invalid
+    summary: An Action invocation contains invalid, unsafe, or authority-mismatching input.
+  - id: runtime-context.action-input-insufficient
+    summary: An Action input is insufficient to resolve a trustworthy result.

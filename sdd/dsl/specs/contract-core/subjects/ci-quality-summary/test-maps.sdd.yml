@@ -9,3 +9,10 @@ test_maps:
         symbol: bundled entrypoint writes matching evidence and outputs
         check_refs:
           - check-quality-summary-status
+  - verification_id: verification.ci-quality-summary.outputs
+    case_id: missing-summary-path-rejected
+    tests:
+      - path: actions/ci-quality-summary/tests/entrypoint.test.ts
+        symbol: bundled entrypoint rejects a missing summary path
+        check_refs:
+          - check-quality-summary-failure-status

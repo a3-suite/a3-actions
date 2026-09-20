@@ -47,39 +47,68 @@ const run = (bin, mode, overrides = {}) => spawnSync('/bin/bash', [script, mode]
   },
 });
 
+// contract_id: contract.ci-github-toolchain-verifier.processing
+// integration_id: ci-github-toolchain-script
 test('accepts every supported verification mode', () => withToolchain((bin) => {
-  for (const mode of ['jq', 'gh-jq', 'jq-sha256', 'gh-jq-sha256']) {
-    assert.equal(run(bin, mode).status, 0, mode);
-  }
+  // Arrange
+  const modes = ['jq', 'gh-jq', 'jq-sha256', 'gh-jq-sha256'];
+  // Act
+  const results = modes.map((mode) => run(bin, mode));
+  // Assert
+  results.forEach((result, index) => assert.equal(result.status, 0, modes[index]));
 }));
 
+// contract_id: contract.ci-github-toolchain-verifier.processing
+// integration_id: ci-github-toolchain-script
 test('rejects an unsupported mode', () => withToolchain((bin) => {
-  const result = run(bin, 'all');
+  // Arrange
+  const mode = 'all';
+  // Act
+  const result = run(bin, mode);
+  // Assert
   assert.equal(result.status, 1);
   assert.match(result.stderr, /github-toolchain-mode-invalid/);
 }));
 
+// contract_id: contract.ci-github-toolchain-verifier.processing
+// integration_id: ci-github-toolchain-script
 test('rejects an unavailable selected command', () => {
-  for (const [mode, command, diagnostic] of [
+  const cases = [
     ['jq', 'jq', 'jq-required'],
     ['gh-jq', 'gh', 'github-cli-required'],
     ['jq-sha256', 'sha256sum', 'sha256sum-required'],
-  ]) {
+  ];
+  for (const [mode, command, diagnostic] of cases) {
+    // Arrange
     withToolchain((bin) => {
       rmSync(path.join(bin, command));
+
+      // Act
       const result = run(bin, mode);
+
+      // Assert
       assert.equal(result.status, 1, `${mode} should reject a missing ${command}`);
       assert.match(result.stderr, new RegExp(diagnostic));
     });
   }
 });
 
+// contract_id: contract.ci-github-toolchain-verifier.processing
+// integration_id: ci-github-toolchain-script
 test('requires an exact version for every selected command', () => withToolchain((bin) => {
-  const missing = run(bin, 'gh-jq', { CI_GH_VERSION: '' });
+  // Arrange
+  const missingVersion = { CI_GH_VERSION: '' };
+  // Act
+  const missing = run(bin, 'gh-jq', missingVersion);
+  // Assert
   assert.equal(missing.status, 1);
   assert.match(missing.stderr, /gh-version-required/);
 
-  const mismatch = run(bin, 'jq-sha256', { CI_JQ_VERSION: '1.6' });
+  // Arrange
+  const mismatchedVersion = { CI_JQ_VERSION: '1.6' };
+  // Act
+  const mismatch = run(bin, 'jq-sha256', mismatchedVersion);
+  // Assert
   assert.equal(mismatch.status, 1);
   assert.match(mismatch.stderr, /jq-version-mismatch: expected=1.6 actual=1.7/);
 }));

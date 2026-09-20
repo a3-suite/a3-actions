@@ -20,5 +20,5 @@ outputs:
   approval-id:
     description: Validated approval identifier.
 runs:
-  using: node20
+  using: node24
   main: dist/index.js

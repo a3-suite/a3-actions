@@ -14,3 +14,11 @@ verifications:
         checks:
           - id: check-tag-resolution-output
             guarantee_ref: tag-resolution-outputs-produced
+      - id: missing-token-rejected
+        intent_id: tag-resolution-rejected
+        input:
+          tag: v1.2.3
+          github-token: ""
+        checks:
+          - id: check-tag-resolution-failure
+            guarantee_ref: tag-resolution-failure-propagated

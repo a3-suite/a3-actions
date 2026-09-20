@@ -13,12 +13,17 @@ const readme = `# project
 説明。
 `;
 
+// contract_id: contract.repository-action-distribution.integrity
+// integration_id: repository-action-distribution-gates
 test('preserves curated rows and appends newly discovered actions', () => {
-  const updated = updateActionTable(readme, [
+  // Arrange
+  const actions = [
     { name: 'alpha', directory: 'alpha', description: 'alpha', readmeSummary: 'alpha' },
     { name: 'beta', directory: 'beta', description: 'beta description', readmeSummary: 'beta summary' },
-  ]);
-
+  ];
+  // Act
+  const updated = updateActionTable(readme, actions);
+  // Assert
   assert.match(updated, /alpha.*alpha を使うとき.*alpha summary/);
   assert.match(updated, /beta.*beta summary.*beta description/);
   assert.match(updated, /action-catalog:start/);
@@ -27,7 +32,10 @@ test('preserves curated rows and appends newly discovered actions', () => {
   assert.match(updated, /beta description \|\n\n<!-- action-catalog:end -->/);
 });
 
+// contract_id: contract.repository-action-distribution.integrity
+// integration_id: repository-action-distribution-gates
 test('removes rows for deleted actions', () => {
+  // Arrange
   const catalogWithDeletedAction = readme.replace(
     '| [`alpha`](actions/alpha/README.md) | alpha を使うとき | alpha summary |\n',
     [
@@ -36,14 +44,18 @@ test('removes rows for deleted actions', () => {
       '',
     ].join('\n'),
   );
+  // Act
   const updated = updateActionTable(catalogWithDeletedAction, [
     { name: 'alpha', directory: 'alpha', description: 'alpha', readmeSummary: 'alpha' },
   ]);
+  // Assert
   assert.doesNotMatch(updated, /\[`beta`\]/);
 });
 
+// integration_id: repository-action-index-regression
 test('normalizes a multiline Action summary into one table row', () => {
-  const updated = updateActionTable(readme, [
+  // Arrange
+  const actions = [
     { name: 'alpha', directory: 'alpha', description: 'alpha', readmeSummary: 'alpha' },
     {
       name: 'beta',
@@ -51,8 +63,10 @@ test('normalizes a multiline Action summary into one table row', () => {
       description: 'beta description',
       readmeSummary: 'beta summary first line,\nsecond line.',
     },
-  ]);
-
+  ];
+  // Act
+  const updated = updateActionTable(readme, actions);
+  // Assert
   assert.match(updated, /\| \[`beta`\].*beta summary first line, second line\..*beta description \|/);
   assert.doesNotMatch(updated, /beta summary first line,\nsecond line/);
 });

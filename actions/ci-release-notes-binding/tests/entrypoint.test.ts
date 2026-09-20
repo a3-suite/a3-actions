@@ -6,8 +6,6 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
-// contract_id: contract.ci-release-notes-binding.outputs
-// integration_id: ci-release-notes-binding-contract-entrypoint
 
 const root = path.resolve(__dirname, '..');
 const createInputs = () => {
@@ -28,18 +26,27 @@ const runBundled = (tempRoot: string, identity: string) => {
   return { output, result: spawnSync(process.execPath, [path.join(root, 'dist/index.js')], { cwd: root, env, encoding: 'utf8' }) };
 };
 
+// contract_id: contract.ci-release-notes-binding.outputs
+// integration_id: ci-release-notes-binding-contract-entrypoint
 test('bundled entrypoint validates an approved notes binding', () => {
+  // Arrange
   const tempRoot = createInputs();
+  // Act
   const run = runBundled(tempRoot, 'v1.2.3');
+  // Assert
   assert.equal(run.result.status, 0);
   assert.match(fs.readFileSync(run.output, 'utf8'), /status<</);
   assert.match(fs.readFileSync(run.output, 'utf8'), /success/);
   fs.rmSync(tempRoot, { recursive: true, force: true });
 });
 
+// integration_id: ci-release-notes-binding-entrypoint-regression
 test('bundled entrypoint fails an identity mismatch', () => {
+  // Arrange
   const tempRoot = createInputs();
+  // Act
   const run = runBundled(tempRoot, 'v1.2.4');
+  // Assert
   assert.notEqual(run.result.status, 0);
   assert.match(fs.readFileSync(run.output, 'utf8'), /failed/);
   fs.rmSync(tempRoot, { recursive: true, force: true });

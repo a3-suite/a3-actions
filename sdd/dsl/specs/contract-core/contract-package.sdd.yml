@@ -14,6 +14,8 @@ subject_scopes:
     path: subjects/ci-change-scope/
   - subject_id: subject.ci.config-snapshot
     path: subjects/ci-config-snapshot/
+  - subject_id: subject.ci.platform-matrix
+    path: subjects/ci-platform-matrix/
   - subject_id: subject.ci.handoff-integrity
     path: subjects/ci-handoff-integrity/
   - subject_id: subject.ci.quality-summary
@@ -24,6 +26,12 @@ subject_scopes:
     path: subjects/ci-annotated-tag-resolver/
   - subject_id: subject.ci.release-request-handoff
     path: subjects/ci-release-request-handoff/
+  - subject_id: subject.ci.release-publication-control
+    path: subjects/ci-release-publication-control/
+  - subject_id: subject.ci.package-publication-request
+    path: subjects/ci-package-publication-request/
+  - subject_id: subject.ci.quality-adapter
+    path: subjects/ci-quality-adapter/
   - subject_id: subject.ci.release-notes-input-resolution
     path: subjects/ci-release-notes-input-resolution/
   - subject_id: subject.ci.publish-version

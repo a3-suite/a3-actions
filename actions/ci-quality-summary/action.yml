@@ -20,5 +20,5 @@ outputs:
   evidence-path:
     description: Path written for the rendered summary evidence.
 runs:
-  using: node20
+  using: node24
   main: dist/index.js

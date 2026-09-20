@@ -26,6 +26,14 @@ jobs:
         shell: bash
         run: node --test tests/action-dist-gate.test.mjs
 
+      - name: Validate contract-subject execution definition
+        shell: bash
+        run: node scripts/contract-subject-coverage.mjs --check
+
+      - name: Test contract-subject coverage reporter
+        shell: bash
+        run: node --test tests/contract-subject-execution.test.mjs
+
       - name: Verify README Action catalog
         shell: bash
         run: node .github/scripts/update-action-index.mjs --check
@@ -100,6 +108,23 @@ jobs:
           sources-json: '{"preset":{"MODE":"release"},"workflow":{"MODE":"candidate"},"runtime":{"MODE":"dry-run"}}'
           snapshot-path: .ci/config-snapshot.json
 
+      - name: Prepare platform manifest fixture
+        shell: bash
+        run: |
+          mkdir -p .ci
+          printf '%s\n' \
+            'platforms:' \
+            '  - id: linux-x64' \
+            '    runner: ubuntu-24.04' \
+            '    target: x86_64-unknown-linux-gnu' \
+            > .ci/platforms.yml
+
+      - name: Resolve platform matrix
+        id: platform-matrix
+        uses: ./actions/ci-platform-matrix
+        with:
+          manifest-path: .ci/platforms.yml
+
       - name: Detect change scope
         id: scope
         uses: ./actions/ci-change-scope
@@ -166,6 +191,7 @@ jobs:
       - name: Verify successful outputs
         env:
           CONFIG_STATUS: ${{ steps.config.outputs.status }}
+          PLATFORM_MATRIX: ${{ steps.platform-matrix.outputs.matrix }}
           SCOPE_STATUS: ${{ steps.scope.outputs.status }}
           HANDOFF_STATUS: ${{ steps.handoff.outputs.status }}
           NOTES_STATUS: ${{ steps.notes.outputs.status }}
@@ -176,6 +202,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$CONFIG_STATUS" = success
+          test "$(printf '%s' "$PLATFORM_MATRIX" | jq -r '.include[0].target')" = x86_64-unknown-linux-gnu
           test "$SCOPE_STATUS" = success
           test "$HANDOFF_STATUS" = success
           test "$NOTES_STATUS" = success

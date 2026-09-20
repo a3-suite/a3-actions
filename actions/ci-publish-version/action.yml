@@ -10,5 +10,5 @@ outputs:
   publish-version:
     description: Materialized publish version.
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
