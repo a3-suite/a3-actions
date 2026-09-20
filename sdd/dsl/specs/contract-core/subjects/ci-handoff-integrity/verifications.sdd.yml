@@ -16,3 +16,14 @@ verifications:
         checks:
           - id: check-handoff-status
             guarantee_ref: handoff-status-produced
+      - id: source-identity-mismatch-rejected
+        intent_id: handoff-validation-rejected
+        input:
+          handoff-root: .ci/handoff
+          descriptor: handoff.json
+          source-sha: mismatched-source
+          version: 1.0.0
+          target-identity: linux-x64
+        checks:
+          - id: check-handoff-failure-status
+            guarantee_ref: handoff-failure-propagated

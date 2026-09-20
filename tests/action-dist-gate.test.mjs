@@ -12,10 +12,15 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+// integration_id: repository-action-distribution-regression
 test('collects bundled and composite Actions with their distribution contract', () => {
-  const actions = collectActions(root);
-  assert.equal(actions.length, 13);
-  assert.equal(actions.filter((action) => action.distPath).length, 10);
+  // Arrange
+  const projectRoot = root;
+  // Act
+  const actions = collectActions(projectRoot);
+  // Assert
+  assert.equal(actions.length, 17);
+  assert.equal(actions.filter((action) => action.distPath).length, 14);
   assert.deepEqual(
     actions.filter((action) => action.runtime === 'composite').map((action) => action.name),
     ['ci-github-toolchain-verifier', 'ci-rust-release-build', 'ci-rust-source-gate'],
@@ -31,12 +36,17 @@ test('collects bundled and composite Actions with their distribution contract', 
   });
 });
 
+// contract_id: contract.repository-action-distribution.integrity
+// integration_id: repository-action-distribution-gates
 test('build plan installs, rebuilds, and compares every Action dist', () => {
+  // Arrange
   const actions = [
     { name: 'first', path: '/workspace/actions/first', distPath: 'actions/first/dist' },
     { name: 'second', path: '/workspace/actions/second', distPath: null },
   ];
+  // Act
   const plan = buildPlan('/workspace', actions);
+  // Assert
   assert.deepEqual(plan, [
     { command: 'npm', args: ['ci', '--ignore-scripts'], cwd: '/workspace/actions/first' },
     { command: 'npm', args: ['run', 'build'], cwd: '/workspace/actions/first' },
@@ -44,16 +54,21 @@ test('build plan installs, rebuilds, and compares every Action dist', () => {
   ]);
 });
 
+// contract_id: contract.repository-action-distribution.integrity
+// integration_id: repository-action-distribution-gates
 test('collects and rebuilds the Rust release script bundle', () => {
-  const bundles = collectScriptBundles(root);
-  assert.deepEqual(bundles.map((bundle) => bundle.name), ['rust-release-platform-manifest']);
-  assert.deepEqual(bundles.map((bundle) => bundle.distPath), ['scripts/rust-release/dist']);
-
+  // Arrange
+  const projectRoot = root;
+  // Act
+  const bundles = collectScriptBundles(projectRoot);
   const plan = buildPlan('/workspace', [], [{
     name: 'rust-release-platform-manifest',
     path: '/workspace/scripts/rust-release',
     distPath: 'scripts/rust-release/dist',
   }]);
+  // Assert
+  assert.deepEqual(bundles.map((bundle) => bundle.name), ['rust-release-platform-manifest']);
+  assert.deepEqual(bundles.map((bundle) => bundle.distPath), ['scripts/rust-release/dist']);
   assert.deepEqual(plan, [
     { command: 'npm', args: ['ci', '--ignore-scripts'], cwd: '/workspace/scripts/rust-release' },
     { command: 'npm', args: ['run', 'build'], cwd: '/workspace/scripts/rust-release' },
@@ -61,13 +76,23 @@ test('collects and rebuilds the Rust release script bundle', () => {
   ]);
 });
 
+// contract_id: contract.repository-action-distribution.integrity
+// integration_id: repository-action-distribution-gates
 test('fails when a build leaves an untracked dist file', () => {
+  // Arrange
   const actions = [{ distPath: 'actions/first/dist' }];
   const execute = () => 'actions/first/dist/extra.js\n';
-  assert.throws(() => assertNoUntrackedDist('/workspace', actions, [], execute), /Untracked distribution files/);
+  let failure;
+  // Act
+  try { assertNoUntrackedDist('/workspace', actions, [], execute); } catch (error) { failure = error; }
+  // Assert
+  assert.match(String(failure), /Untracked distribution files/);
 });
 
+// contract_id: contract.repository-action-distribution.integrity
+// integration_id: repository-action-distribution-gates
 test('fails when a Composite Action references an untracked script', () => {
+  // Arrange
   const actions = [{ referencedPaths: ['scripts/example/run.sh'] }];
   const execute = (command, args) => {
     assert.equal(command, 'git');
@@ -75,8 +100,9 @@ test('fails when a Composite Action references an untracked script', () => {
     throw new Error('pathspec did not match any files');
   };
 
-  assert.throws(
-    () => assertTrackedReferences('/workspace', actions, execute),
-    /untracked referenced paths.*scripts\/example\/run\.sh/is,
-  );
+  let failure;
+  // Act
+  try { assertTrackedReferences('/workspace', actions, execute); } catch (error) { failure = error; }
+  // Assert
+  assert.match(String(failure), /untracked referenced paths.*scripts\/example\/run\.sh/is);
 });

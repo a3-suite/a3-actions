@@ -14,3 +14,11 @@ verifications:
         checks:
           - id: check-change-scope-status
             guarantee_ref: change-scope-status-produced
+      - id: invalid-sha-unresolved
+        intent_id: change-scope-unresolved-output-set
+        input:
+          base-sha: short
+          head-sha: short
+        checks:
+          - id: check-change-scope-unresolved-status
+            guarantee_ref: change-scope-unresolved-status-produced

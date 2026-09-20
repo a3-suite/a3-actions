@@ -6,8 +6,6 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
-// contract_id: contract.ci-quality-summary.outputs
-// integration_id: ci-quality-summary-contract-entrypoint
 
 const root = path.resolve(__dirname, '..');
 const bundledEntrypoint = path.join(root, 'dist/index.js');
@@ -68,9 +66,15 @@ const successInput = {
   }],
 };
 
+// contract_id: contract.ci-quality-summary.outputs
+// integration_id: ci-quality-summary-contract-entrypoint
 test('bundled entrypoint writes matching evidence and outputs', () => {
-  const run = runBundled(successInput, true, 'nested');
+  // Arrange
+  const input = successInput;
+  // Act
+  const run = runBundled(input, true, 'nested');
   try {
+    // Assert
     assert.equal(run.result.status, 0);
     const evidence = fs.readFileSync(run.evidencePath, 'utf8');
     assert.equal(evidence, fs.readFileSync(run.summaryPath, 'utf8'));
@@ -85,30 +89,46 @@ test('bundled entrypoint writes matching evidence and outputs', () => {
   }
 });
 
-test('bundled entrypoint fails unresolved and missing-path inputs', () => {
-  const unresolved = runBundled({
+// contract_id: contract.ci-quality-summary.outputs
+// integration_id: ci-quality-summary-contract-entrypoint
+test('bundled entrypoint rejects a missing summary path', () => {
+  // Arrange
+  // Act
+  const missingPath = runBundled(successInput, false);
+  try {
+    // Assert
+    assert.notEqual(missingPath.result.status, 0);
+    assert.equal(outputValue(fs.readFileSync(missingPath.outputPath, 'utf8'), 'status'), 'failed');
+  } finally {
+    fs.rmSync(missingPath.tempRoot, { recursive: true, force: true });
+  }
+});
+
+// integration_id: ci-quality-summary-entrypoint-regression
+test('bundled entrypoint fails unresolved and invalid path relationships', () => {
+  // Arrange
+  const unresolvedInput = {
     jobs: [{
       ...successInput.jobs[0],
       result: '判定不能',
       collection: '取得不可',
       reason: 'unknown',
     }],
-  });
-  const missingPath = runBundled(successInput, false);
+  };
+  // Act
+  const unresolved = runBundled(unresolvedInput);
   const samePath = runBundled(successInput, true, 'same');
   const hardlink = runBundled(successInput, true, 'hardlink');
   try {
+    // Assert
     assert.notEqual(unresolved.result.status, 0);
     assert.equal(outputValue(fs.readFileSync(unresolved.outputPath, 'utf8'), 'status'), 'unresolved');
-    assert.notEqual(missingPath.result.status, 0);
-    assert.equal(outputValue(fs.readFileSync(missingPath.outputPath, 'utf8'), 'status'), 'failed');
     assert.notEqual(samePath.result.status, 0);
     assert.equal(outputValue(fs.readFileSync(samePath.outputPath, 'utf8'), 'status'), 'failed');
     assert.notEqual(hardlink.result.status, 0);
     assert.equal(outputValue(fs.readFileSync(hardlink.outputPath, 'utf8'), 'status'), 'failed');
   } finally {
     fs.rmSync(unresolved.tempRoot, { recursive: true, force: true });
-    fs.rmSync(missingPath.tempRoot, { recursive: true, force: true });
     fs.rmSync(samePath.tempRoot, { recursive: true, force: true });
     fs.rmSync(hardlink.tempRoot, { recursive: true, force: true });
   }

@@ -31,11 +31,20 @@ project:
     - id: skill-ci-github
       root: ${skills_root}/ci-github/assets/a3-lint/rules
       include:
-        - '**/*.lua'
+        - '**/ci_github_runtime_no_a3_cli.lua'
+        - '**/ci_github_workflow_*.lua'
         - '**/*.yml'
         - '**/*.yaml'
       languages:
         - yaml
+      frameworks:
+        - any
+    - id: skill-ci-github-markdown
+      root: ${skills_root}/ci-github/assets/a3-lint/rules
+      include:
+        - '**/ci_github_ci_readme_contract.lua'
+      languages:
+        - markdown
       frameworks:
         - any
 

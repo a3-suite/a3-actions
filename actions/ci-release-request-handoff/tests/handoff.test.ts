@@ -5,22 +5,33 @@ import path from 'node:path';
 import test from 'node:test';
 import { writeReleaseRequestHandoff } from '../src/handoff.js';
 
-const base = { tagSourceSha: 'a'.repeat(40), tagObjectSha: 'b'.repeat(40) };
+const base = { tagSourceSha: 'a'.repeat(40), tagObjectSha: 'b'.repeat(40), requestRunId: '42', requestActor: 'release-operator' };
 
-test('writes manual request and notes handoff files', () => {
+// integration_id: ci-release-request-handoff-source
+test('writes tag request without release notes', () => {
+  // Arrange
   const outputDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-request-handoff-'));
-  const result = writeReleaseRequestHandoff({ ...base, mode: 'manual', outputDirectory, releaseVersion: '1.2.3', releaseTag: 'v1.2.3', releaseNotes: '# Release\n', approvalId: 'review-1', approvalBodySha256: 'c'.repeat(64), approvalExpiresAt: '2030-01-01T00:00:00Z', githubRef: 'refs/heads/main' });
-  assert.equal(JSON.parse(fs.readFileSync(result.requestPath, 'utf8')).schema, 'ci.release-request.v1');
-  assert.ok(result.releaseNotesPath && fs.existsSync(result.releaseNotesPath));
+  // Act
+  const result = writeReleaseRequestHandoff({ ...base, outputDirectory, githubRef: 'refs/tags/v1.2.3', githubRefName: 'v1.2.3' });
+  const request = JSON.parse(fs.readFileSync(result.requestPath, 'utf8'));
+  // Assert
+  assert.equal(request.event, 'tag');
   assert.ok(fs.existsSync(result.requestDigestPath));
   fs.rmSync(outputDirectory, { recursive: true, force: true });
 });
 
-test('writes tag request without release notes', () => {
+// integration_id: ci-release-request-handoff-source
+test('rejects a tag ref that does not match the tag name', () => {
+  // Arrange
   const outputDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-request-handoff-'));
-  const result = writeReleaseRequestHandoff({ ...base, mode: 'tag', outputDirectory, githubRef: 'refs/tags/v1.2.3', githubRefName: 'v1.2.3' });
-  const request = JSON.parse(fs.readFileSync(result.requestPath, 'utf8'));
-  assert.equal(request.event, 'tag');
-  assert.equal(result.releaseNotesPath, undefined);
+  let failure: unknown;
+  // Act
+  try {
+    writeReleaseRequestHandoff({ ...base, outputDirectory, githubRef: 'refs/tags/v2.0.0', githubRefName: 'v1.2.3' });
+  } catch (error) {
+    failure = error;
+  }
+  // Assert
+  assert.match(String(failure), /github-tag-ref-mismatch/);
   fs.rmSync(outputDirectory, { recursive: true, force: true });
 });

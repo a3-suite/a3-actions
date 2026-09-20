@@ -12,3 +12,11 @@ verifications:
         checks:
           - id: check-quality-summary-status
             guarantee_ref: quality-summary-status-produced
+      - id: missing-summary-path-rejected
+        intent_id: quality-summary-rejected
+        input:
+          summary-json: valid
+          github-step-summary: unset
+        checks:
+          - id: check-quality-summary-failure-status
+            guarantee_ref: quality-summary-failure-propagated

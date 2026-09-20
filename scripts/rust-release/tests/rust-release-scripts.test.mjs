@@ -38,7 +38,10 @@ const run = (command, args, options = {}) => spawnSync(command, args, {
 
 const sha256 = (content) => createHash('sha256').update(content.replaceAll('\r', '')).digest('hex');
 
+// contract_id: contract.ci-rust-source-gate.processing
+// integration_id: rust-source-gate-script
 test('source gate accepts the bound checkout and rejects a different source SHA', () => withFixture((fixture) => {
+  // Arrange
   const authority = path.join(fixture, 'authority.json');
   const sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], {
     cwd: repositoryRoot,
@@ -46,15 +49,23 @@ test('source gate accepts the bound checkout and rejects a different source SHA'
   }).trim();
   writeFileSync(authority, JSON.stringify({ language_profile: 'rust', source_sha: sourceSha }));
 
+  // Act
   const accepted = run(path.join(scriptRoot, 'ci-source-gate.sh'), ['rust', authority]);
+  // Assert
   assert.equal(accepted.status, 0, accepted.stderr);
 
+  // Arrange
   writeFileSync(authority, JSON.stringify({ language_profile: 'rust', source_sha: 'a'.repeat(40) }));
+  // Act
   const rejected = run(path.join(scriptRoot, 'ci-source-gate.sh'), ['rust', authority]);
+  // Assert
   assert.notEqual(rejected.status, 0);
 }));
 
+// contract_id: contract.ci-rust-release-build.processing
+// integration_id: rust-release-build-script
 test('release build binds exact toolchain and a unique manifest platform before building', () => withFixture((fixture) => {
+  // Arrange
   const sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], {
     cwd: repositoryRoot,
     encoding: 'utf8',
@@ -120,22 +131,30 @@ test('release build binds exact toolchain and a unique manifest platform before 
     'rust', manifestPath, toolchain, platformId, target, authorityPath, output,
   ];
 
+  // Act
   const accepted = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
     '1.90.0', platformTarget, path.join(fixture, 'accepted-output'),
   ), { env: environment });
+  // Assert
   assert.equal(accepted.status, 0, accepted.stderr);
 
+  // Act
   const targetMismatch = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
     '1.90.0', mismatchedTarget, path.join(fixture, 'mismatch-output'),
   ), { env: environment });
+  // Assert
   assert.notEqual(targetMismatch.status, 0);
 
+  // Arrange
   writeAuthority('stable');
+  // Act
   const mutableToolchain = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
     'stable', platformTarget, path.join(fixture, 'stable-output'),
   ), { env: environment });
+  // Assert
   assert.notEqual(mutableToolchain.status, 0);
 
+  // Arrange
   const duplicateText = [
     'platforms:',
     `  - {id: ${platformId}, runner: ${runner}, target: ${platformTarget}}`,
@@ -144,13 +163,18 @@ test('release build binds exact toolchain and a unique manifest platform before 
   ].join('\n');
   writeFileSync(manifestPath, duplicateText);
   writeAuthority('1.90.0', manifestPath, duplicateText);
+  // Act
   const duplicate = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
     '1.90.0', platformTarget, path.join(fixture, 'duplicate-output'),
   ), { env: environment });
+  // Assert
   assert.notEqual(duplicate.status, 0);
 }));
 
+// contract_id: contract.ci-rust-release-build.processing
+// integration_id: rust-release-build-script
 test('Unix package and verification bind archive, checksum, manifest, and source without overwrite', () => withFixture((fixture) => {
+  // Arrange
   const binary = path.join(fixture, 'example-cli');
   const output = path.join(fixture, 'release-output');
   const sourceSha = 'a'.repeat(40);
@@ -177,9 +201,13 @@ test('Unix package and verification bind archive, checksum, manifest, and source
     output,
   ];
 
+  // Act
   const created = run(path.join(scriptRoot, 'package-release-unix.sh'), packageArgs);
+  // Assert
   assert.equal(created.status, 0, created.stderr);
+  // Act
   const verified = run(path.join(scriptRoot, 'verify-release-asset-unix.sh'), verifyArgs);
+  // Assert
   assert.equal(verified.status, 0, verified.stderr);
 
   const manifestPath = path.join(output, 'asset-manifest.json');
@@ -197,19 +225,28 @@ test('Unix package and verification bind archive, checksum, manifest, and source
   assert.equal(manifest.source_sha, sourceSha);
   assert.equal(manifest.assets.length, 1);
 
+  // Arrange
   const archive = path.join(output, manifest.assets[0].path);
   const originalArchive = readFileSync(archive);
+  // Act
   const repeated = run(path.join(scriptRoot, 'package-release-unix.sh'), packageArgs);
+  // Assert
   assert.notEqual(repeated.status, 0);
   assert.deepEqual(readFileSync(archive), originalArchive);
 
+  // Arrange
   manifest.source_sha = 'b'.repeat(40);
   writeFileSync(manifestPath, JSON.stringify(manifest));
+  // Act
   const tampered = run(path.join(scriptRoot, 'verify-release-asset-unix.sh'), verifyArgs);
+  // Assert
   assert.notEqual(tampered.status, 0);
 }));
 
+// contract_id: contract.ci-rust-release-build.processing
+// integration_id: rust-release-build-script
 test('Unix package failure leaves no final or temporary output directory', () => withFixture((fixture) => {
+  // Arrange
   const binary = path.join(fixture, 'example-cli');
   const output = path.join(fixture, 'release-output');
   const fakeBin = path.join(fixture, 'bin');
@@ -220,6 +257,7 @@ test('Unix package failure leaves no final or temporary output directory', () =>
   writeFileSync(tar, '#!/usr/bin/env bash\nexit 1\n');
   chmodSync(tar, 0o755);
 
+  // Act
   const failed = run(path.join(scriptRoot, 'package-release-unix.sh'), [
     binary,
     'example-cli',
@@ -231,6 +269,7 @@ test('Unix package failure leaves no final or temporary output directory', () =>
     `${output}${path.sep}`,
   ], { env: { ...process.env, PATH: `${fakeBin}${path.delimiter}${process.env.PATH}` } });
 
+  // Assert
   assert.notEqual(failed.status, 0);
   assert.equal(existsSync(output), false);
   assert.deepEqual(
@@ -239,7 +278,10 @@ test('Unix package failure leaves no final or temporary output directory', () =>
   );
 }));
 
+// contract_id: contract.ci-rust-release-build.processing
+// integration_id: rust-release-build-script
 test('Unix package preserves an output directory created immediately before publication', () => withFixture((fixture) => {
+  // Arrange
   const binary = path.join(fixture, 'example-cli');
   const output = path.join(fixture, 'release-output');
   const fakeBin = path.join(fixture, 'bin');
@@ -260,6 +302,7 @@ test('Unix package preserves an output directory created immediately before publ
   ].join('\n'));
   chmodSync(mkdir, 0o755);
 
+  // Act
   const raced = run(path.join(scriptRoot, 'package-release-unix.sh'), [
     binary,
     'example-cli',
@@ -277,6 +320,7 @@ test('Unix package preserves an output directory created immediately before publ
     },
   });
 
+  // Assert
   assert.notEqual(raced.status, 0);
   assert.deepEqual(readdirSync(output), ['competitor-owned']);
   assert.deepEqual(
@@ -285,7 +329,10 @@ test('Unix package preserves an output directory created immediately before publ
   );
 }));
 
+// contract_id: contract.ci-rust-release-build.processing
+// integration_id: rust-release-build-script
 test('Unix package removes its claimed output when publication fails', () => withFixture((fixture) => {
+  // Arrange
   const binary = path.join(fixture, 'example-cli');
   const output = path.join(fixture, 'release-output');
   const fakeBin = path.join(fixture, 'bin');
@@ -307,6 +354,7 @@ test('Unix package removes its claimed output when publication fails', () => wit
   ].join('\n'));
   chmodSync(mv, 0o755);
 
+  // Act
   const failed = run(path.join(scriptRoot, 'package-release-unix.sh'), [
     binary,
     'example-cli',
@@ -324,6 +372,7 @@ test('Unix package removes its claimed output when publication fails', () => wit
     },
   });
 
+  // Assert
   assert.notEqual(failed.status, 0);
   assert.equal(existsSync(output), false);
   assert.deepEqual(
@@ -332,7 +381,9 @@ test('Unix package removes its claimed output when publication fails', () => wit
   );
 }));
 
+// integration_id: rust-release-scripts-regression
 test('PowerShell package and verification roundtrip when pwsh is available', { skip: !hasPwsh }, () => withFixture((fixture) => {
+  // Arrange
   const binary = path.join(fixture, 'example-cli.exe');
   const output = path.join(fixture, 'release-output');
   writeFileSync(binary, 'release-binary');
@@ -347,8 +398,11 @@ test('PowerShell package and verification roundtrip when pwsh is available', { s
     'a'.repeat(40),
     `${output}${path.sep}`,
   ];
+  // Act
   const created = run('pwsh', ['-NoLogo', '-NoProfile', '-File', path.join(scriptRoot, 'package-release.ps1'), ...common]);
+  // Assert
   assert.equal(created.status, 0, created.stderr);
+  // Act
   const verified = run('pwsh', [
     '-NoLogo',
     '-NoProfile',
@@ -356,17 +410,26 @@ test('PowerShell package and verification roundtrip when pwsh is available', { s
     path.join(scriptRoot, 'verify-release-asset.ps1'),
     ...common.slice(1),
   ]);
+  // Assert
   assert.equal(verified.status, 0, verified.stderr);
 }));
 
+// integration_id: rust-release-scripts-regression
 test('Windows build uses case-sensitive package and binary version checks', () => {
+  // Arrange
+  // Act
   const script = readFileSync(path.join(scriptRoot, 'ci-release-build.ps1'), 'utf8');
+  // Assert
   assert.match(script, /\$package\.version -cne \$authority\.version/);
   assert.match(script, /\$binaryVersion -cne "\$versionPrefix\$\(\$authority\.version\)"/);
 });
 
+// integration_id: rust-release-scripts-regression
 test('Windows package verifies staging before publishing the final output directory', () => {
+  // Arrange
+  // Act
   const script = readFileSync(path.join(scriptRoot, 'package-release.ps1'), 'utf8');
+  // Assert
   assert.match(script, /verify-release-asset\.ps1.*\$staging/);
   assert.match(script, /TrimEnd\(\[IO\.Path\]::DirectorySeparatorChar/);
   assert.match(script, /\[IO\.Directory\]::Move\(\$staging, \$outputPath\)/);

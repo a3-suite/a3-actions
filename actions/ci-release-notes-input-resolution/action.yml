@@ -1,31 +1,19 @@
 name: ci-release-notes-input-resolution
-description: Select and normalize release-notes inputs for a release publication workflow.
+description: Validate and materialize an approved release-notes handoff.
 inputs:
-  request-json:
-    required: true
-    description: Path to ci.release-request.v1 request JSON.
   input-handoff-directory:
     required: true
     description: Directory containing externally approved release-notes handoff files.
   output-directory:
     required: true
     description: Directory containing the normalized release-notes files.
-  handoff-run-id:
-    required: false
-    description: External workflow run identifier for tag mode.
-  resolve-only:
-    required: false
-    default: 'false'
-    description: Resolve whether an external handoff is required without copying files.
 outputs:
   status:
     description: success or failed.
-  requires-external:
-    description: Whether the request event requires an external approved notes handoff.
   release-notes-path:
     description: Normalized release-notes JSON path.
   approval-path:
     description: Normalized release-notes approval JSON path.
 runs:
-  using: node20
+  using: node24
   main: dist/index.js

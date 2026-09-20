@@ -5,8 +5,6 @@ import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import test from 'node:test';
 
-// contract_id: contract.ci-change-scope.outputs
-// integration_id: ci-change-scope-contract-entrypoint
 
 const root = path.resolve(__dirname, '..');
 const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
@@ -22,16 +20,25 @@ const runBundled = (base: string) => {
   return { output, result, tempRoot };
 };
 
+// contract_id: contract.ci-change-scope.outputs
+// integration_id: ci-change-scope-contract-entrypoint
 test('bundled entrypoint reports a valid range', () => {
+  // Arrange
+  // Act
   const run = runBundled(head);
+  // Assert
   assert.equal(run.result.status, 0);
   assert.match(fs.readFileSync(run.output, 'utf8'), /status<</);
   assert.match(fs.readFileSync(run.output, 'utf8'), /success/);
   fs.rmSync(run.tempRoot, { recursive: true, force: true });
 });
 
+// integration_id: ci-change-scope-entrypoint-regression
 test('bundled entrypoint fails open for an invalid SHA', () => {
+  // Arrange
+  // Act
   const run = runBundled('--relative=src');
+  // Assert
   assert.equal(run.result.status, 0);
   const output = fs.readFileSync(run.output, 'utf8');
   assert.match(output, /unresolved/);

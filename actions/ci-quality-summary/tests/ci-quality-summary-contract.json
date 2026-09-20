@@ -17,6 +17,6 @@
     }
   },
   "outputs": ["status", "digest", "evidence-path"],
-  "runtime": "node20",
+  "runtime": "node24",
   "failure": "same summary-path and evidence-path are rejected"
 }

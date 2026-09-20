@@ -12,3 +12,12 @@ verifications:
         checks:
           - id: check-publish-version-output
             guarantee_ref: publish-version-output-produced
+      - id: invalid-plan-rejected
+        intent_id: publish-version-plan-rejected
+        input:
+          strategy: ciGenerated
+          template: "{baseVersion}"
+          components: {}
+        checks:
+          - id: check-publish-version-failure
+            guarantee_ref: publish-version-failure-propagated

@@ -25,7 +25,13 @@ const runBlock = () => {
   return match[1].replace(/^ {8}/gm, '');
 };
 
+// integration_id: ci-rust-release-build-action-regression
 test('action.yml maps release build inputs to the shared script family', () => {
+  // Arrange
+  const actionPath = path.join(root, 'action.yml');
+  // Act
+  const action = readFileSync(actionPath, 'utf8');
+  // Assert
   assert.match(action, /^name: ci-rust-release-build$/m);
   assert.match(action, /^  using: composite$/m);
   for (const input of [
@@ -64,7 +70,10 @@ test('action.yml maps release build inputs to the shared script family', () => {
   }
 });
 
+// contract_id: contract.ci-rust-release-build.outputs
+// integration_id: ci-rust-release-build-action
 test('composite release build exposes completed only after script success', () => {
+  // Arrange
   const fixture = mkdtempSync(path.join(os.tmpdir(), 'a3-actions-rust-build-action-'));
   const actionPath = path.join(fixture, 'actions', 'ci-rust-release-build');
   const fixtureScript = path.join(fixture, 'scripts', 'rust-release', 'ci-release-build.sh');
@@ -104,18 +113,23 @@ test('composite release build exposes completed only after script success', () =
       CI_RELEASE_VERSION_PREFIX: 'example-cli ',
       CI_RELEASE_ASSET_PREFIX: 'example-cli',
     };
+    // Act
     const success = spawnSync('bash', ['-euo', 'pipefail', '-c', runBlock()], {
       encoding: 'utf8',
       env: environment,
     });
+    // Assert
     assert.equal(success.status, 0, success.stderr);
     assert.equal(readFileSync(output, 'utf8'), 'completed=true\n');
 
+    // Arrange
     writeFileSync(output, '');
+    // Act
     const failure = spawnSync('bash', ['-euo', 'pipefail', '-c', runBlock()], {
       encoding: 'utf8',
       env: { ...environment, PLATFORM_ID: 'macos-arm64' },
     });
+    // Assert
     assert.notEqual(failure.status, 0);
     assert.equal(readFileSync(output, 'utf8'), '');
   } finally {

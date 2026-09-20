@@ -13,3 +13,9 @@ verifications:
           summary-path: .ci/summary.md
         checks:
           - {id: check-vitest-summary-output, guarantee_ref: vitest-summary-output-produced}
+      - id: malformed-report-unresolved
+        intent_id: vitest-summary-unresolved-output-set
+        input:
+          report-json: malformed-report.json
+        checks:
+          - {id: check-vitest-summary-unresolved-output, guarantee_ref: vitest-summary-unresolved-output-produced}

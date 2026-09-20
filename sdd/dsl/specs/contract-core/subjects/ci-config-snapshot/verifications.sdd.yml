@@ -13,3 +13,11 @@ verifications:
         checks:
           - id: check-config-snapshot-status
             guarantee_ref: config-snapshot-status-produced
+      - id: command-file-collision-rejected
+        intent_id: config-snapshot-rejected
+        input:
+          snapshot-path: github-output.txt
+          github-output: github-output.txt
+        checks:
+          - id: check-config-snapshot-failure-status
+            guarantee_ref: config-snapshot-failure-propagated

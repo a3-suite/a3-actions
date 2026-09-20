@@ -19,3 +19,14 @@ observations:
         - selector: digest
           kind: observation_field
           meaning: SHA-256 digest of resolved snapshot values and sources.
+  - id: observation.ci-config-snapshot.result
+    summary: The Action exposes its failed step outcome when snapshot input is rejected.
+    boundary:
+      ref: boundary.action-output
+    value:
+      root: action.step-result
+      kind: object
+      fields:
+        - selector: outcome
+          kind: observation_field
+          meaning: Failure outcome of the rejected snapshot operation.

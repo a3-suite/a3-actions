@@ -28,5 +28,5 @@ outputs:
   entries:
     description: Number of validated manifest entries.
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
