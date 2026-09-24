@@ -11,7 +11,7 @@ test('project execution definition resolves every declared contract subject', ()
   const platform = definition.subjects.find((subject) => subject.subjectId === subjectId);
   const composite = definition.subjects.find((subject) => subject.subjectId === 'subject.ci.github-toolchain-verifier');
   // Assert
-  assert.equal(definition.subjects.length, 18);
+  assert.equal(definition.subjects.length, 19);
   assert.deepEqual(
     platform.segments.map((segment) => [segment.id, segment.level, segment.status ?? 'active']),
     [
