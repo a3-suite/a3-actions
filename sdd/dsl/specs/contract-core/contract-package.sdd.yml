@@ -6,6 +6,8 @@ subject_scopes:
     path: subjects/repository-action-distribution/
   - subject_id: subject.ci.github-toolchain-verifier
     path: subjects/ci-github-toolchain-verifier/
+  - subject_id: subject.ci.jq-provisioner
+    path: subjects/ci-jq-provisioner/
   - subject_id: subject.ci.rust-source-gate
     path: subjects/ci-rust-source-gate/
   - subject_id: subject.ci.rust-release-build
