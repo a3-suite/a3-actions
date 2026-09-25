@@ -36,6 +36,36 @@ test('preserves failure states with deterministic precedence', () => {
 });
 
 // target_id: renderQualitySummary(QualitySummaryInput)
+test('excludes intentionally-not-applicable rows from aggregation', () => {
+  // Arrange
+  const inputs = [
+    { jobs: [{ ...row('success'), collection: '完了' }, row('対象外', 'excluded by trust branch')] },
+    { jobs: [{ ...row('success'), collection: '完了' }, { ...row('対象外', 'disabled by owner contract'), collection: '取得不可' }] },
+  ];
+  // Act
+  const rendered = inputs.map((input) => renderQualitySummary(input));
+  // Assert
+  assert.deepEqual(rendered.map((item) => item.status), ['success', 'success']);
+  assert.match(rendered[0].markdown, /⏭ 対象外/);
+});
+
+// target_id: renderQualitySummary(QualitySummaryInput)
+test('rejects an input where every row is excluded', () => {
+  // Arrange
+  const input = { jobs: [row('対象外', 'excluded')] };
+  // Act + Assert
+  assert.throws(() => renderQualitySummary(input), /ci-summary-all-excluded/);
+});
+
+// target_id: renderQualitySummary(QualitySummaryInput)
+test('keeps failure precedence in the presence of excluded rows', () => {
+  // Arrange
+  const input = { jobs: [row('failed', 'hard failure'), row('対象外', 'excluded')] };
+  // Act + Assert
+  assert.equal(renderQualitySummary(input).status, 'failed');
+});
+
+// target_id: renderQualitySummary(QualitySummaryInput)
 test('rejects missing rows and reasons', () => {
   // Arrange
   const inputs = [{}, { jobs: [row('failed')] }];

@@ -10,7 +10,7 @@
 | `summary-path` | no | 出力先。空値は `GITHUB_STEP_SUMMARY` |
 | `evidence-path` | no | 今回の描画 bytes を保存する証跡ファイル。既定値は `.ci/ci-quality-summary.evidence.md` |
 
-各 row は `unit`、`execution`、`result`、`evidence`、`collection` を持ちます。`result` は `success`、`failed`、`blocked`、`判定不能`、`未実施` のいずれかで、`success` 以外は `reason` が必要です。
+各 row は `unit`、`execution`、`result`、`evidence`、`collection` を持ちます。`result` は `success`、`failed`、`blocked`、`判定不能`、`未実施`、`対象外` のいずれかで、`success` 以外は `reason` が必要です。`対象外` は設定または owner 契約により実行しない row を表し、集約の対象外として扱います。実行すべき row が実行されなかった場合は `未実施` を使います。
 
 ## 出力
 
@@ -20,7 +20,7 @@
 | `digest` | 描画した summary の `sha256:<64桁hex>` |
 | `evidence-path` | summary を追記したファイルの path |
 
-status は `failed`、`判定不能`、収集状態が `完了` でない row、`blocked` / `未実施`、`success` の順で集約します。`failed`、`blocked`、`unresolved` は Action を失敗終了させます。不正入力、出力先未指定、summary または evidence の書き込み失敗も失敗終了です。`summary-path` と `evidence-path` は同じ実体を指定できません。`digest` は `evidence-path` の内容に対する digest です。
+status は `failed`、`判定不能`、収集状態が `完了` でない row、`blocked` / `未実施`、`success` の順で集約します。`対象外` の row はこの評価から除外します。全 row が `対象外` の場合は不正入力です。`failed`、`blocked`、`unresolved` は Action を失敗終了させます。不正入力、出力先未指定、summary または evidence の書き込み失敗も失敗終了です。`summary-path` と `evidence-path` は同じ実体を指定できません。`digest` は `evidence-path` の内容に対する digest です。
 
 ## 使用例
 

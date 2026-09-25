@@ -19,8 +19,8 @@ test('collects bundled and composite Actions with their distribution contract', 
   // Act
   const actions = collectActions(projectRoot);
   // Assert
-  assert.equal(actions.length, 18);
-  assert.equal(actions.filter((action) => action.distPath).length, 15);
+  assert.equal(actions.length, 19);
+  assert.equal(actions.filter((action) => action.distPath).length, 16);
   assert.deepEqual(
     actions.filter((action) => action.runtime === 'composite').map((action) => action.name),
     ['ci-github-toolchain-verifier', 'ci-rust-release-build', 'ci-rust-source-gate'],

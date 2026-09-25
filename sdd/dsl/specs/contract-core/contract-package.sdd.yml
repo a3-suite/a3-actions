@@ -40,6 +40,8 @@ subject_scopes:
     path: subjects/ci-publish-version/
   - subject_id: subject.ci.vitest-summary
     path: subjects/ci-vitest-summary/
+  - subject_id: subject.ci.release-workflow-identity
+    path: subjects/ci-release-workflow-identity/
 environment_ref:
   environment_id: a3-actions-github-environment
   path: environments/github-actions.sdd.yml

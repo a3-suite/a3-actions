@@ -189,6 +189,64 @@
       ]
     },
     {
+      "subjectId": "subject.ci.release-workflow-identity",
+      "build": {
+        "cwd": "actions/ci-release-workflow-identity",
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ]
+      },
+      "segments": [
+        {
+          "id": "unit-source",
+          "level": "unit",
+          "cwd": "actions/ci-release-workflow-identity",
+          "tests": [
+            "tests/identity.test.ts"
+          ],
+          "typescript": true,
+          "coverage": {
+            "enabled": true,
+            "scope": "source",
+            "include": [
+              "src/**/*.ts"
+            ],
+            "exclude": [
+              "dist/**"
+            ]
+          }
+        },
+        {
+          "id": "integration-bundle",
+          "level": "integration",
+          "cwd": "actions/ci-release-workflow-identity",
+          "tests": [
+            "tests/action-contract.test.ts",
+            "tests/entrypoint.test.ts"
+          ],
+          "typescript": true,
+          "coverage": {
+            "enabled": true,
+            "scope": "dist",
+            "include": [
+              "dist/**/*.js"
+            ],
+            "exclude": [
+              "src/**"
+            ]
+          }
+        },
+        {
+          "id": "e2e",
+          "level": "e2e",
+          "status": "excluded",
+          "reason": "Hosted reusable-workflow identity is observed by the GitHub workflow; no external system flow is defined for local contract-subject execution."
+        }
+      ]
+    },
+    {
       "subjectId": "subject.repository.action-distribution",
       "segments": [
         { "id": "unit", "level": "unit", "status": "excluded", "reason": "Distribution consistency is a repository gate, not an isolated product unit." },
