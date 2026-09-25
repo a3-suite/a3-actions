@@ -18,6 +18,7 @@ test('bundled Action rejects an invalid version as provisioning failure', () => 
       RUNNER_ARCH: 'X64',
       RUNNER_TEMP: path.resolve('tests/tmp'),
       GITHUB_PATH: path.resolve('tests/tmp/unused-github-path'),
+      GITHUB_ACTIONS: 'true',
     },
   });
   assert.equal(result.status, 1);

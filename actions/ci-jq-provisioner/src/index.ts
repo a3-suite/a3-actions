@@ -18,7 +18,9 @@ async function main(): Promise<void> {
   }, githubPath);
 }
 
-main().catch((error: unknown) => {
-  process.stderr.write(`${String(error)}\n`);
-  process.exitCode = 1;
-});
+if (process.env.GITHUB_ACTIONS === 'true') {
+  main().catch((error: unknown) => {
+    process.stderr.write(`${String(error)}\n`);
+    process.exitCode = 1;
+  });
+}
