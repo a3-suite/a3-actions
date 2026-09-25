@@ -79,3 +79,7 @@ runtime_contexts:
     summary: An Action invocation contains invalid, unsafe, or authority-mismatching input.
   - id: runtime-context.action-input-insufficient
     summary: An Action input is insufficient to resolve a trustworthy result.
+  - id: runtime-context.workflow-identity-context-valid
+    summary: The caller and called reusable workflow resolve to the same default-branch snapshot with a matching commit SHA.
+  - id: runtime-context.workflow-identity-context-invalid
+    summary: A caller repository, workflow path, ref, or SHA mismatch rejects the reusable workflow identity.

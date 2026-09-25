@@ -34,6 +34,7 @@ uses: a3-suite/a3-actions/actions/<action-name>@<40-char-commit-sha>
 | [`ci-quality-adapter`](actions/ci-quality-adapter/README.md) | `ci-quality-adapter` は trusted descriptor に定義された read-only quality commands を fixed source checkout で実行し、構造化結果を出力します。workflow の checkout、権限、credential、trusted descriptor の選択は所有しません。 | Execute a validated read-only quality adapter against a fixed source checkout. |
 | [`ci-release-publication-control`](actions/ci-release-publication-control/README.md) | `ci-release-publication-control` は release publication request の生成、workflow handoff との結合、provenance、公開直前の approval を検証します。artifact の取得、GitHub API、job 権限、credential、publish は workflow が所有します。 | Create and verify release publication request handoffs and provenance. |
 | [`ci-jq-provisioner`](actions/ci-jq-provisioner/README.md) | 指定した exact version の jq を公式 Release から検証付きで供給します。 | Install an exact jq release asset after checking its release checksum. |
+| [`ci-release-workflow-identity`](actions/ci-release-workflow-identity/README.md) | `ci-release-workflow-identity` は、reusable workflow を呼び出した snapshot が default branch 上の同一 commit であることを検証し、検証済みの workflow commit SHA を出力します。権限、job 境界、公開処理、release 判断は所有しません。 | Verify the trusted default-branch workflow snapshot used by a reusable release workflow. |
 
 <!-- action-catalog:end -->
 
