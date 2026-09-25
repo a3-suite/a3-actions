@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-const RESULTS = ['success', 'failed', 'blocked', '判定不能', '未実施'] as const;
+const RESULTS = ['success', 'failed', 'blocked', '判定不能', '未実施', '対象外'] as const;
 const COLLECTIONS = ['完了', '一部取得', '取得不可'] as const;
 type Result = (typeof RESULTS)[number];
 type Collection = (typeof COLLECTIONS)[number];
@@ -67,12 +67,15 @@ const parseInput = (value: unknown): QualitySummaryInput => {
 
 const escapeCell = (value: string): string => value.replaceAll('|', '\\|');
 const escapeInline = (value: string): string => value.replaceAll('|', '\\|').replaceAll('`', '\\`');
+// 設計上の対象外は実行状態ではないため、集約の対象から除外する。
+const isExcluded = (row: SummaryRow): boolean => row.result === '対象外';
 const resultLabel = (result: Result): string => ({
   success: '✅ 成功',
   failed: '❌ 失敗',
   blocked: '⚠️ 判定不能',
   判定不能: '⚠️ 判定不能',
   未実施: '⏭ 未実施',
+  対象外: '⏭ 対象外',
 }[result]);
 
 const renderTable = (title: string, heading: string, rows: SummaryRow[]): string[] => [
@@ -84,16 +87,18 @@ const renderTable = (title: string, heading: string, rows: SummaryRow[]): string
 ];
 
 const aggregateStatus = (rows: SummaryRow[]): RenderedSummary['status'] => {
-  if (rows.some((row) => row.result === 'failed')) return 'failed';
-  if (rows.some((row) => row.result === '判定不能')) return 'unresolved';
-  if (rows.some((row) => row.collection !== '完了')) return 'unresolved';
-  if (rows.some((row) => row.result === 'blocked' || row.result === '未実施')) return 'blocked';
+  const considered = rows.filter((row) => !isExcluded(row));
+  if (considered.some((row) => row.result === 'failed')) return 'failed';
+  if (considered.some((row) => row.result === '判定不能')) return 'unresolved';
+  if (considered.some((row) => row.collection !== '完了')) return 'unresolved';
+  if (considered.some((row) => row.result === 'blocked' || row.result === '未実施')) return 'blocked';
   return 'success';
 };
 
 export const renderQualitySummary = (value: unknown): RenderedSummary => {
   const parsed = parseInput(value);
   const rows = [...(parsed.jobs ?? []), ...(parsed.tests ?? [])];
+  if (rows.every((row) => isExcluded(row))) throw new Error('ci-summary-all-excluded');
   const lines: string[] = [];
   if (parsed.jobs?.length) lines.push(...renderTable('ジョブサマリ', 'ジョブ', parsed.jobs), '');
   if (parsed.tests?.length) lines.push(...renderTable('テストサマリ', 'テスト', parsed.tests), '');

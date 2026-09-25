@@ -2,4 +2,5 @@
 .DS_Store
 .a3-lint/
 .a3-sdd/
-tests/tmp/
+# テストが生成する一時出力（リポジトリ直下および各 Action 配下）
+**/tests/tmp/
