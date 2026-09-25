@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { loadDefinition, parseLcov, validateDefinition } from '../scripts/contract-subject-coverage.mjs';
 
 // integration_id: repository-contract-subject-execution
@@ -11,7 +14,7 @@ test('project execution definition resolves every declared contract subject', ()
   const platform = definition.subjects.find((subject) => subject.subjectId === subjectId);
   const composite = definition.subjects.find((subject) => subject.subjectId === 'subject.ci.github-toolchain-verifier');
   // Assert
-  assert.equal(definition.subjects.length, 19);
+  assert.equal(definition.subjects.length, 20);
   assert.deepEqual(
     platform.segments.map((segment) => [segment.id, segment.level, segment.status ?? 'active']),
     [
@@ -25,6 +28,22 @@ test('project execution definition resolves every declared contract subject', ()
   assert.equal(definition.report.unit, 'contract-subject-and-execution-segment');
   assert.equal(composite.segments[1].coverage.enabled, false);
   assert.match(composite.segments[1].coverage.reason, /shell implementation/);
+});
+
+// integration_id: repository-contract-subject-execution
+test('execution definition covers every contract-package subject scope', () => {
+  // Arrange
+  const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const definition = loadDefinition();
+  const contractPackage = readFileSync(
+    path.join(projectRoot, 'sdd/dsl/specs/contract-core/contract-package.sdd.yml'),
+    'utf8',
+  );
+  // Act
+  const packageSubjects = [...contractPackage.matchAll(/^\s*- subject_id:\s*(\S+)\s*$/gm)].map((match) => match[1]);
+  const executionSubjects = definition.subjects.map((subject) => subject.subjectId);
+  // Assert
+  assert.deepEqual([...executionSubjects].sort(), [...packageSubjects].sort());
 });
 
 // target_id: parseLcov(string)

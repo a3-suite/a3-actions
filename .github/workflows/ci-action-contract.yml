@@ -57,6 +57,13 @@ jobs:
           npm --prefix actions/ci-jq-provisioner test
           npm --prefix actions/ci-jq-provisioner run lint
 
+      - name: Test release workflow identity Action contract
+        shell: bash
+        run: |
+          npm --prefix actions/ci-release-workflow-identity ci
+          npm --prefix actions/ci-release-workflow-identity test
+          npm --prefix actions/ci-release-workflow-identity run lint
+
       - name: Provision jq 1.7.1
         uses: ./actions/ci-jq-provisioner
         with:
