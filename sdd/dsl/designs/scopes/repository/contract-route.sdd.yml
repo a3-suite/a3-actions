@@ -17,6 +17,13 @@ routes:
     hops:
       - component_id: action-contracts
       - component_id: script-implementations
+  - route_id: action-contracts-jq-provisioner
+    contract_ref:
+      subject_ref: subject.ci.jq-provisioner
+      contract_id: contract.ci-jq-provisioner.provision
+    hops:
+      - component_id: action-contracts
+      - component_id: hosted-delivery
   - route_id: script-processing-github-toolchain-verifier
     contract_ref:
       subject_ref: subject.ci.github-toolchain-verifier
