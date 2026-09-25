@@ -3,7 +3,7 @@ name: contract-clauses
 subject_ref: subject.ci.quality-summary
 contracts:
   - id: contract.ci-quality-summary.outputs
-    summary: A quality result containing rows produces an aggregate status output.
+    summary: A quality result containing rows produces an aggregate status output; rows declared 対象外 are excluded from aggregation, and a result where every row is 対象外 is invalid input.
     conditions:
       - id: summary-input-present
         input_predicate:

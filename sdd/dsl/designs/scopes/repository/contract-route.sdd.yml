@@ -137,6 +137,12 @@ routes:
       contract_id: contract.ci-quality-adapter.outputs
     hops:
       - component_id: action-contracts
+  - route_id: action-contracts-release-workflow-identity
+    contract_ref:
+      subject_ref: subject.ci.release-workflow-identity
+      contract_id: contract.ci-release-workflow-identity.verify
+    hops:
+      - component_id: action-contracts
   - route_id: action-contracts-vitest-summary
     contract_ref:
       subject_ref: subject.ci.vitest-summary
