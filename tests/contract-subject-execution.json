@@ -61,7 +61,7 @@
       "build": { "cwd": "actions/ci-jq-provisioner", "command": ["npm", "run", "build"] },
       "segments": [
         { "id": "unit-source", "level": "unit", "cwd": "actions/ci-jq-provisioner", "tests": ["tests/provision.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "source", "include": ["src/**/*.ts"], "exclude": ["dist/**"] } },
-        { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-jq-provisioner", "tests": ["tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
+        { "id": "integration-bundle", "level": "integration", "cwd": "actions/ci-jq-provisioner", "tests": ["tests/action-contract.test.ts", "tests/entrypoint.test.ts"], "typescript": true, "coverage": { "enabled": true, "scope": "dist", "include": ["dist/**/*.js"], "exclude": ["src/**"] } },
         { "id": "e2e", "level": "e2e", "status": "excluded", "reason": "Hosted jq provisioning is checked by the GitHub workflow and requires runner evidence outside local contract-subject execution." }
       ]
     },

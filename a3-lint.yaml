@@ -48,6 +48,8 @@ project:
       frameworks:
         - any
 
+# 対象言語が typescript/javascript/yaml/markdown にまたがるため既定 lang は固定せず、
+# 実行対象の言語ごとに --lang を明示して a3-lint を実行する。
 run_defaults:
   framework: any
   format: json
