@@ -1,0 +1,37 @@
+version: 1
+name: use-case
+use_case_id: rust-cli-release-asset-publication
+summary: release maintainer が固定 source と承認済み identity から Rust CLI release asset を検証付きで公開する
+actors:
+  - actor_id: release-maintainer
+    kind: human
+    role: primary
+    summary: リリース対象 version、authority、承認済み release notes を確定する主体
+  - actor_id: release-workflow
+    kind: external-system
+    role: secondary
+    summary: Action を使って release asset を build、package、検証、公開する GitHub workflow
+goal: 固定 source・toolchain・platform に拘束された release asset と、承認済み release identity を一致させて安全に公開する
+preconditions:
+  - release authority と platform manifest が確定している
+  - 対象 source が固定 commit で checkout されている
+  - release notes の本文が承認されている
+trigger: Rust CLI の release を実行する
+main_success_scenario:
+  - summary: 呼び出した reusable workflow の snapshot identity を検証する
+  - summary: release authority に記録された language profile と source SHA を checked-out source と照合する
+  - summary: authority に拘束された toolchain と target で release asset を build し、binary が報告する version を検証する
+  - summary: archive、checksum、asset manifest を生成し、source、version、platform identity を相互に検証する
+  - summary: 承認済み release notes を release identity に結び付け、publication request と provenance を検証する
+  - summary: 検証済み asset を release ref として公開する
+success_outcomes:
+  - release asset、version、source、platform、承認済み notes が同じ検証結果で一致する
+  - 利用者は未検証の asset を release として受け取らない
+failure_outcomes:
+  - source、toolchain、platform、version、checksum、notes のいずれかが一致しない場合は asset を公開しない
+  - workflow の権限、runner、publish authority は Action が決定せず provider 側へ委譲する
+related_requirements:
+  - requirement_ref:
+      requirement_id: rust-release-asset-integrity
+  - requirement_ref:
+      requirement_id: ci-common-processing-action-reuse

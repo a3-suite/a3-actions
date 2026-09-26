@@ -6,7 +6,7 @@ import { parseDocument } from 'yaml';
 type CommandSpec = { id: string; command: string; args?: string[] };
 type CommandResult = CommandSpec & { status: 'success' | 'failed' | '判定不能'; exitCode: number | null; stdout: string; stderr: string };
 type ProjectSettings = { requiredFiles: string[]; requiredScripts: string[]; requiredEnvironmentPaths: string[] };
-type Toolchain = { versionEnv: string; verify: CommandSpec & { expectedOutput: string } };
+type Toolchain = { versionEnv: string; verify: CommandSpec };
 export type AdapterBundle = {
   schemaVersion: string; kind: string; id: string; contract: string; languageProfiles: string[];
   provider: string; executionBoundary: 'read-only'; sourceCheckout: 'fixed-source'; copyable: boolean; owner: string;
@@ -39,6 +39,8 @@ const commands = (value: unknown, field: string, optional = false): CommandSpec[
   return value.map(command);
 };
 const hasSkillPath = (value: string): boolean => /(?:^|[\s/'"`])(?:\.\.?\/)?skills\//.test(value);
+const versionTokenPresent = (output: string, version: string): boolean =>
+  output.split(/[ \t\n\r]+/).some((token) => token === version || token === `v${version}` || token === `V${version}`);
 
 export const loadAdapterBundle = (bundlePath: string): AdapterBundle => {
   const document = parseDocument(fs.readFileSync(bundlePath, 'utf8'), { prettyErrors: false });
@@ -50,8 +52,6 @@ export const loadAdapterBundle = (bundlePath: string): AdapterBundle => {
   if (value.sourceCheckout !== 'fixed-source') throw new Error('quality-adapter-source-checkout-invalid');
   if (typeof value.copyable !== 'boolean') throw new Error('quality-adapter-copyable-invalid');
   if (value.toolchain.versionEnv !== 'CI_TOOLCHAIN_VERSION') throw new Error('quality-adapter-toolchain-invalid');
-  const expectedOutput = text(value.toolchain.verify.expectedOutput, 'toolchain-expected-output');
-  if (!expectedOutput.includes('${CI_TOOLCHAIN_VERSION}')) throw new Error('quality-adapter-toolchain-binding-invalid');
   if (!Array.isArray(value.assets)) throw new Error('quality-adapter-assets-invalid');
   const assets = value.assets.map((item) => {
     if (!record(item) || item.source !== undefined) throw new Error('quality-adapter-asset-invalid');
@@ -62,7 +62,7 @@ export const loadAdapterBundle = (bundlePath: string): AdapterBundle => {
     languageProfiles: strings(value.languageProfiles, 'language-profiles'), provider: text(value.provider, 'provider'),
     executionBoundary: 'read-only', sourceCheckout: 'fixed-source', copyable: value.copyable, owner: text(value.owner, 'owner'), assets,
     projectSettings: { requiredFiles: strings(value.projectSettings.requiredFiles, 'required-files', true), requiredScripts: strings(value.projectSettings.requiredScripts, 'required-scripts', true), requiredEnvironmentPaths: strings(value.projectSettings.requiredEnvironmentPaths, 'required-environment-paths', true) },
-    toolchain: { versionEnv: 'CI_TOOLCHAIN_VERSION', verify: { ...command({ ...value.toolchain.verify, id: 'toolchain-verify' }), expectedOutput } },
+    toolchain: { versionEnv: 'CI_TOOLCHAIN_VERSION', verify: command({ ...value.toolchain.verify, id: 'toolchain-verify' }) },
     preparation: commands(value.preparation, 'preparation'), commands: commands(value.commands, 'commands'),
   };
   if (bundle.contract !== 'quality-scripts') throw new Error('quality-adapter-contract-invalid');
@@ -130,12 +130,15 @@ export const executeAdapter = (bundle: AdapterBundle, options: AdapterOptions): 
   verifyPaths(bundle.projectSettings, sourceRoot, environment);
   const results: CommandResult[] = [];
   const verify = runCommand(bundle.toolchain.verify, sourceRoot, environment, []);
-  if (verify.status === 'success') {
-    const escaped = options.toolchainVersion.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    try {
-      const expected = bundle.toolchain.verify.expectedOutput.replaceAll('${CI_TOOLCHAIN_VERSION}', escaped);
-      if (!new RegExp(expected).test(verify.stdout.trim())) Object.assign(verify, { status: 'failed', stderr: 'quality-adapter-toolchain-version-mismatch' });
-    } catch { Object.assign(verify, { status: '判定不能', stderr: 'quality-adapter-toolchain-expected-output-invalid' }); }
+  if (verify.status !== '判定不能') {
+    const received = `${verify.stdout}\n${verify.stderr}`;
+    const reportsVersion = verify.status === 'success' && versionTokenPresent(received, options.toolchainVersion);
+    if (!reportsVersion) {
+      Object.assign(verify, {
+        status: 'failed',
+        stderr: `quality-adapter-toolchain-version-mismatch: expected=${options.toolchainVersion} or v${options.toolchainVersion} or V${options.toolchainVersion} received=${received}`,
+      });
+    }
   }
   results.push(verify);
   if (verify.status === 'success') {

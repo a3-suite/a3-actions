@@ -30,6 +30,8 @@ requirements:
       use_cases:
         - use_case_ref:
             use_case_id: github-actions-action-contract-and-distribution
+        - use_case_ref:
+            use_case_id: ci-quality-gate-execution
       quality_scenarios:
         - quality_scenario_ref:
             quality_scenario_id: github-actions-action-contract-and-distribution-safe
