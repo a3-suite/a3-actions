@@ -35,6 +35,7 @@ uses: a3-suite/a3-actions/actions/<action-name>@<40-char-commit-sha>
 | [`ci-release-publication-control`](actions/ci-release-publication-control/README.md) | `ci-release-publication-control` は release publication request の生成、workflow handoff との結合、provenance、公開直前の approval を検証します。artifact の取得、GitHub API、job 権限、credential、publish は workflow が所有します。 | Create and verify release publication request handoffs and provenance. |
 | [`ci-jq-provisioner`](actions/ci-jq-provisioner/README.md) | 指定した exact version の jq を公式 Release から検証付きで供給します。 | Install an exact jq release asset after checking its release checksum. |
 | [`ci-release-workflow-identity`](actions/ci-release-workflow-identity/README.md) | `ci-release-workflow-identity` は、reusable workflow を呼び出した snapshot が default branch 上の同一 commit であることを検証し、検証済みの workflow commit SHA を出力します。権限、job 境界、公開処理、release 判断は所有しません。 | Verify the trusted default-branch workflow snapshot used by a reusable release workflow. |
+| [`ci-gh-provisioner`](actions/ci-gh-provisioner/README.md) | 指定した exact version の GitHub CLI (`gh`) を公式 Release から検証付きで供給します。 | Install an exact GitHub CLI release asset after checking its release checksum. |
 
 <!-- action-catalog:end -->
 
