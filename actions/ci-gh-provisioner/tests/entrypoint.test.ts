@@ -13,7 +13,7 @@ test('bundled Action rejects an invalid version as provisioning failure', () => 
     encoding: 'utf8',
     env: {
       ...process.env,
-      'INPUT_JQ-VERSION': 'not-exact',
+      'INPUT_GH-VERSION': 'not-exact',
       RUNNER_OS: 'Linux',
       RUNNER_ARCH: 'X64',
       RUNNER_TEMP: path.resolve('tests/tmp'),
@@ -22,5 +22,5 @@ test('bundled Action rejects an invalid version as provisioning failure', () => 
     },
   });
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /jq-provision-failed: invalid exact version/);
+  assert.match(result.stderr, /gh-provision-failed: invalid exact version/);
 });
