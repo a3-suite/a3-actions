@@ -28,7 +28,7 @@ outputs:
   status:
     description: success, failed, or 判定不能.
   result-path:
-    description: Path to the JSON result.
+    description: Path to the JSON result, set only when the adapter result is written.
 runs:
   using: node24
   main: dist/index.js

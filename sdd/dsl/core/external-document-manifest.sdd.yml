@@ -22,10 +22,3 @@ documents:
     accepted_digest:
       algorithm: sha256
       digest: dce2298df578eaf9e189f01734e6e1d941b51b94fdbd3c4fc7f22e7365cfd3c7
-  a3-prompts-ci-adapter-bundles:
-    source:
-      kind: uri
-      value: https://github.com/izumilufty/a3-prompts/blob/945870d90a0ccaa6d4dcc5b45b2bc437e4de8529/skills/ci/ci/references/ci-adapter-bundles.reference.yml
-    accepted_digest:
-      algorithm: sha256
-      digest: 6c6fb1e58275f8e8efb32d7cd0ef647f4b13f3d88fc7ebb59d2194cce14952ec

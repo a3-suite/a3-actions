@@ -3,7 +3,7 @@ name: contract-clauses
 subject_ref: subject.ci.quality-adapter
 contracts:
   - id: contract.ci-quality-adapter.outputs
-    summary: A valid read-only descriptor produces an aggregate execution status.
+    summary: A read-only descriptor executes with toolchain version verification and produces an aggregate status; rejected inputs and non-success commands fail closed with diagnostics.
     conditions:
       - id: quality-adapter-bundle-present
         input_predicate:
@@ -19,6 +19,16 @@ contracts:
         environment_predicate:
           kind: environment-ref
           target_ref: runtime-context.quality-adapter-toolchain-version-report-rejected
+          op: available
+      - id: quality-adapter-command-unavailable
+        environment_predicate:
+          kind: environment-ref
+          target_ref: runtime-context.quality-adapter-command-unavailable
+          op: available
+      - id: quality-adapter-processing-failed
+        environment_predicate:
+          kind: environment-ref
+          target_ref: runtime-context.quality-adapter-processing-failed
           op: available
     guarantees:
       - id: quality-adapter-status-produced
@@ -53,6 +63,49 @@ contracts:
           target:
             kind: diagnostic_code
             value: quality-adapter-toolchain-version-mismatch
+      - id: quality-adapter-toolchain-version-fails
+        when: quality-adapter-toolchain-version-report-rejected
+        observation_ref: observation.ci-quality-adapter.result
+        claim:
+          kind: observable-value
+          op: in
+          relation:
+            left:
+              kind: observation_field
+              value: outcome
+            right:
+              kind: value_set
+              values:
+                - failure
+      - id: quality-adapter-command-unavailable-status
+        when: quality-adapter-command-unavailable
+        observation_ref: observation.ci-quality-adapter.outputs
+        claim:
+          kind: observable-value
+          op: in
+          relation:
+            left:
+              kind: observation_field
+              value: status
+            right:
+              kind: value_set
+              values:
+                - failed
+                - 判定不能
+      - id: quality-adapter-processing-failure-propagated
+        when: quality-adapter-processing-failed
+        observation_ref: observation.ci-quality-adapter.result
+        claim:
+          kind: observable-value
+          op: in
+          relation:
+            left:
+              kind: observation_field
+              value: outcome
+            right:
+              kind: value_set
+              values:
+                - failure
     verification_intents:
       - id: quality-adapter-execution
         goal: A read-only descriptor executes in the selected source root and returns status.
@@ -66,3 +119,12 @@ contracts:
         goal: A toolchain version command that does not report the requested version as an independent token fails with the stable version-mismatch diagnostic.
         guarantee_refs:
           - quality-adapter-toolchain-version-diagnostic-present
+          - quality-adapter-toolchain-version-fails
+      - id: quality-adapter-command-unavailable
+        goal: A quality adapter command that cannot be spawned surfaces a non-success status.
+        guarantee_refs:
+          - quality-adapter-command-unavailable-status
+      - id: quality-adapter-processing-rejected
+        goal: A quality adapter preparation or project command failure propagates as failure.
+        guarantee_refs:
+          - quality-adapter-processing-failure-propagated
