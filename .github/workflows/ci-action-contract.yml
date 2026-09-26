@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  CI_GH_VERSION: '2.80.0'
+
 jobs:
   contract:
     name: CI Action contract / hosted
@@ -57,6 +60,13 @@ jobs:
           npm --prefix actions/ci-jq-provisioner test
           npm --prefix actions/ci-jq-provisioner run lint
 
+      - name: Test gh provisioner Action contract
+        shell: bash
+        run: |
+          npm --prefix actions/ci-gh-provisioner ci
+          npm --prefix actions/ci-gh-provisioner test
+          npm --prefix actions/ci-gh-provisioner run lint
+
       - name: Test release workflow identity Action contract
         shell: bash
         run: |
@@ -75,6 +85,11 @@ jobs:
           mode: jq
           jq-version: 1.7.1
 
+      - name: Provision GitHub CLI ${{ env.CI_GH_VERSION }}
+        uses: ./actions/ci-gh-provisioner
+        with:
+          gh-version: ${{ env.CI_GH_VERSION }}
+
       - name: Test shared Rust release scripts
         shell: bash
         run: node --test scripts/rust-release/tests/rust-release-scripts.test.mjs
@@ -86,23 +101,22 @@ jobs:
           actions/ci-rust-source-gate/tests/action-contract.test.mjs
           actions/ci-rust-release-build/tests/action-contract.test.mjs
 
-      - name: Resolve hosted toolchain versions
+      - name: Resolve hosted jq and sha256sum versions
         id: toolchain-versions
         shell: bash
         run: |
           set -euo pipefail
           {
-            echo "gh=$(gh --version | awk 'NR == 1 { print $3 }')"
             echo "jq=$(jq --version | sed 's/^jq-//')"
             echo "sha256sum=$(sha256sum --version | sed -n '1s/.*) \([0-9][0-9.]*\).*/\1/p')"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Verify hosted GitHub toolchain
+      - name: Verify pinned GitHub toolchain
         id: toolchain
         uses: ./actions/ci-github-toolchain-verifier
         with:
           mode: gh-jq-sha256
-          gh-version: ${{ steps.toolchain-versions.outputs.gh }}
+          gh-version: ${{ env.CI_GH_VERSION }}
           jq-version: ${{ steps.toolchain-versions.outputs.jq }}
           sha256sum-version: ${{ steps.toolchain-versions.outputs.sha256sum }}
 

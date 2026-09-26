@@ -25,3 +25,7 @@ items:
     kind: requirement
   - path: items/quality-scenarios/jq-release-provisioning-safe/quality-scenario.sdd.yml
     kind: quality-scenario
+  - path: items/requirements/gh-release-provisioning/requirement.sdd.yml
+    kind: requirement
+  - path: items/quality-scenarios/gh-release-provisioning-safe/quality-scenario.sdd.yml
+    kind: quality-scenario
