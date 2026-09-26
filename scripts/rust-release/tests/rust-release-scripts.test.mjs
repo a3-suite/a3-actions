@@ -79,7 +79,7 @@ test('release build binds exact toolchain and a unique manifest platform before 
   const manifestText = `platforms:\n  - {id: ${platformId}, runner: ${runner}, target: ${platformTarget}}\n`;
   writeFileSync(manifestPath, manifestText);
   const cargoManifest = path.join(fixture, 'Cargo.toml');
-  writeFileSync(cargoManifest, "[package]\nname='example-cli'\nversion='1.2.3'\n");
+  writeFileSync(cargoManifest, "[package]\nname='example-cli'\nversion='0.3.0'\n");
   const authorityPath = path.join(fixture, 'authority.json');
   const writeAuthority = (toolchain, platformManifest = manifestPath, content = manifestText) => {
     writeFileSync(authorityPath, JSON.stringify({
@@ -88,7 +88,7 @@ test('release build binds exact toolchain and a unique manifest platform before 
       platform_manifest: platformManifest,
       platform_manifest_sha256: sha256(content),
       source_sha: sourceSha,
-      version: '1.2.3',
+      version: '0.3.0',
     }));
   };
   writeAuthority('1.90.0');
@@ -104,13 +104,20 @@ test('release build binds exact toolchain and a unique manifest platform before 
     '#!/usr/bin/env bash',
     'set -euo pipefail',
     'if [[ " $* " == *" metadata "* ]]; then',
-    "  jq -n --arg manifest \"$FAKE_MANIFEST\" --arg target \"$FAKE_TARGET_DIR\" '{packages:[{manifest_path:$manifest,version:\"1.2.3\"}],target_directory:$target}'",
+    "  jq -n --arg manifest \"$FAKE_MANIFEST\" --arg target \"$FAKE_TARGET_DIR\" '{packages:[{manifest_path:$manifest,version:\"0.3.0\"}],target_directory:$target}'",
     '  exit 0',
     'fi',
     'mkdir -p "$FAKE_TARGET_DIR/$FAKE_TARGET/release"',
-    'cat > "$FAKE_TARGET_DIR/$FAKE_TARGET/release/example-cli" <<SCRIPT',
+    "cat > \"$FAKE_TARGET_DIR/$FAKE_TARGET/release/example-cli\" <<'SCRIPT'",
     '#!/usr/bin/env bash',
-    "printf '%s\\n' 'example-cli 1.2.3'",
+    'if [[ -n "${FAKE_VERSION_OUTPUT:-}" ]]; then',
+    '  if [[ "${FAKE_VERSION_STREAM:-stdout}" == "stderr" ]]; then',
+    "    printf '%s\\n' \"$FAKE_VERSION_OUTPUT\" >&2",
+    '  else',
+    "    printf '%s\\n' \"$FAKE_VERSION_OUTPUT\"",
+    '  fi',
+    'fi',
+    'exit "${FAKE_VERSION_EXIT_CODE:-0}"',
     'SCRIPT',
     'chmod +x "$FAKE_TARGET_DIR/$FAKE_TARGET/release/example-cli"',
     '',
@@ -121,11 +128,11 @@ test('release build binds exact toolchain and a unique manifest platform before 
     PATH: `${fakeBin}${path.delimiter}${process.env.PATH}`,
     CI_CARGO_MANIFEST_PATH: cargoManifest,
     CI_RELEASE_BINARY_NAME: 'example-cli',
-    CI_RELEASE_VERSION_PREFIX: 'example-cli ',
     CI_RELEASE_ASSET_PREFIX: 'example-cli',
     FAKE_MANIFEST: cargoManifest,
     FAKE_TARGET_DIR: targetDirectory,
     FAKE_TARGET: platformTarget,
+    FAKE_VERSION_OUTPUT: 'a3-sdd 0.3.0',
   };
   const args = (toolchain, target, output) => [
     'rust', manifestPath, toolchain, platformId, target, authorityPath, output,
@@ -137,6 +144,41 @@ test('release build binds exact toolchain and a unique manifest platform before 
   ), { env: environment });
   // Assert
   assert.equal(accepted.status, 0, accepted.stderr);
+
+  // Act + Assert: the authority version is accepted as an independent token in the --version output.
+  const tokenOutputs = ['a3-sdd 0.3.0', 'v0.3.0', 'V0.3.0', '0.3.0', 'a3-sdd 0.3.0\n(commit abc)', 'a3-sdd\t0.3.0', 'a3-sdd\r0.3.0'];
+  for (const [index, output] of tokenOutputs.entries()) {
+    const acceptedOutput = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
+      '1.90.0', platformTarget, path.join(fixture, `version-accepted-${index}`),
+    ), { env: { ...environment, FAKE_VERSION_OUTPUT: output } });
+    assert.equal(acceptedOutput.status, 0, `${output}: ${acceptedOutput.stderr}`);
+  }
+
+  // Act + Assert: a version token reported on stderr is accepted through the stdout -> stderr concatenation.
+  const stderrVersion = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
+    '1.90.0', platformTarget, path.join(fixture, 'version-accepted-stderr'),
+  ), { env: { ...environment, FAKE_VERSION_OUTPUT: '0.3.0', FAKE_VERSION_STREAM: 'stderr' } });
+  assert.equal(stderrVersion.status, 0, stderrVersion.stderr);
+
+  // Act + Assert: outputs without the authority version as a token fail with the stable diagnostic.
+  const rejectedOutputs = ['0.3.1', '10.3.0', 'v0.3.0-rc1', '', '(0.3.0)', 'a3-sdd v0.3.0-rc1'];
+  for (const [index, output] of rejectedOutputs.entries()) {
+    const rejectedOutput = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
+      '1.90.0', platformTarget, path.join(fixture, `version-rejected-${index}`),
+    ), { env: { ...environment, FAKE_VERSION_OUTPUT: output } });
+    assert.notEqual(rejectedOutput.status, 0, `${output} should be rejected`);
+    assert.match(rejectedOutput.stderr, /binary-version-mismatch/);
+    assert.match(rejectedOutput.stderr, /expected=/);
+    assert.match(rejectedOutput.stderr, /received=/);
+  }
+
+  // Act + Assert: a non-zero version command fails even when the output contains the token.
+  const failedVersionCommand = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
+    '1.90.0', platformTarget, path.join(fixture, 'version-failed-command'),
+  ), { env: { ...environment, FAKE_VERSION_OUTPUT: 'a3-sdd 0.3.0', FAKE_VERSION_EXIT_CODE: '1' } });
+  assert.notEqual(failedVersionCommand.status, 0);
+  assert.match(failedVersionCommand.stderr, /binary-version-mismatch/);
+  assert.match(failedVersionCommand.stderr, /received=/);
 
   // Act
   const targetMismatch = run(path.join(scriptRoot, 'ci-release-build.sh'), args(
@@ -415,13 +457,15 @@ test('PowerShell package and verification roundtrip when pwsh is available', { s
 }));
 
 // integration_id: rust-release-scripts-regression
-test('Windows build uses case-sensitive package and binary version checks', () => {
+test('Windows build uses case-sensitive package and binary version token checks', () => {
   // Arrange
   // Act
   const script = readFileSync(path.join(scriptRoot, 'ci-release-build.ps1'), 'utf8');
   // Assert
   assert.match(script, /\$package\.version -cne \$authority\.version/);
-  assert.match(script, /\$binaryVersion -cne "\$versionPrefix\$\(\$authority\.version\)"/);
+  assert.match(script, /\$token -ceq \$authority\.version -or \$token -ceq "v\$\(\$authority\.version\)" -or \$token -ceq "V\$\(\$authority\.version\)"/);
+  assert.match(script, /\$binaryVersionOutput -split '\[\\x20\\x09\\x0A\\x0D\]\+'/);
+  assert.match(script, /binary-version-mismatch: expected=\$\(\$authority\.version\) or v\$\(\$authority\.version\) or V\$\(\$authority\.version\) received=\$binaryVersionOutput/);
 });
 
 // integration_id: rust-release-scripts-regression
