@@ -62,9 +62,11 @@ runtime_contexts:
   - id: runtime-context.rust-source-script-failed
     summary: The shared Rust source verification script failed.
   - id: runtime-context.rust-release-build-inputs-match-authority
-    summary: The Rust build request has valid authority, source identity, exact toolchain, unique platform selection, package metadata, and an unclaimed output destination.
+    summary: The Rust build request has valid authority, source identity, exact toolchain, unique platform selection, package metadata, a binary that reports the authority version as an independent token, and an unclaimed output destination.
   - id: runtime-context.rust-release-build-rejected
-    summary: A Rust build input is invalid, does not match the release authority, selects an ambiguous platform, uses a mutable toolchain, or targets an existing output destination.
+    summary: A Rust build input is invalid, does not match the release authority, selects an ambiguous platform, uses a mutable toolchain, targets an existing output destination, or the binary does not report the authority version as an independent token.
+  - id: runtime-context.rust-release-version-report-rejected
+    summary: The built binary does not report the authority version as an independent token, or the version command fails.
   - id: runtime-context.rust-release-build-script-succeeded
     summary: The shared Rust release build script completed build, package, checksum, manifest, and artifact verification successfully.
   - id: runtime-context.rust-release-build-script-failed

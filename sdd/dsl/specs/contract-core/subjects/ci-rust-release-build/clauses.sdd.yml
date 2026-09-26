@@ -15,6 +15,11 @@ contracts:
           kind: environment-ref
           target_ref: runtime-context.rust-release-build-rejected
           op: available
+      - id: rust-release-version-report-rejected
+        environment_predicate:
+          kind: environment-ref
+          target_ref: runtime-context.rust-release-version-report-rejected
+          op: available
     guarantees:
       - id: rust-release-processing-concludes-safely
         when: rust-release-build-inputs-match-authority
@@ -76,6 +81,15 @@ contracts:
               values:
                 - absent
                 - preserved
+      - id: rust-release-version-diagnostic-present
+        when: rust-release-version-report-rejected
+        observation_ref: observation.ci-rust-release-build.script-result
+        claim:
+          kind: diagnostic-present
+          op: contains
+          target:
+            kind: diagnostic_code
+            value: binary-version-mismatch
     verification_intents:
       - id: rust-release-processing-verified
         goal: Matching authority-bound inputs produce a verified Rust release asset or fail without publishing an unverified final asset.
@@ -87,6 +101,10 @@ contracts:
         guarantee_refs:
           - rust-release-processing-fails
           - rust-release-rejected-final-output-safe
+      - id: rust-release-version-report-rejected
+        goal: A binary that does not report the authority version as an independent token fails with the stable version-mismatch diagnostic.
+        guarantee_refs:
+          - rust-release-version-diagnostic-present
   - id: contract.ci-rust-release-build.outputs
     summary: The Composite Action maps shared script success to completed output and propagates script failure.
     conditions:
