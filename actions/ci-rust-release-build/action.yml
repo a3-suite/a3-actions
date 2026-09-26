@@ -28,9 +28,6 @@ inputs:
   release-binary-name:
     description: Cargo binary target and archive entry name
     required: true
-  release-version-prefix:
-    description: Prefix expected from the binary --version output
-    required: true
   release-asset-prefix:
     description: Prefix used for the release archive name
     required: true
@@ -54,7 +51,6 @@ runs:
         OUTPUT_DIRECTORY: ${{ inputs.output-directory }}
         CI_CARGO_MANIFEST_PATH: ${{ inputs.cargo-manifest-path }}
         CI_RELEASE_BINARY_NAME: ${{ inputs.release-binary-name }}
-        CI_RELEASE_VERSION_PREFIX: ${{ inputs.release-version-prefix }}
         CI_RELEASE_ASSET_PREFIX: ${{ inputs.release-asset-prefix }}
       run: |
         "${GITHUB_ACTION_PATH}/../../scripts/rust-release/ci-release-build.sh" \
