@@ -16,6 +16,9 @@ requirements:
       - 取得、checksum、配置の失敗時は jq-provision-failed として停止する
       - 供給後の exact version 検証は既存 verifier に委譲する
     derived_artifacts:
+      use_cases:
+        - use_case_ref:
+            use_case_id: github-tool-exact-version-provisioning
       quality_scenarios:
         - quality_scenario_ref:
             quality_scenario_id: jq-release-provisioning-safe

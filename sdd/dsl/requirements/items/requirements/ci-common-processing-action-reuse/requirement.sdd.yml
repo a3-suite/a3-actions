@@ -30,6 +30,13 @@ requirements:
       - document_id: a3-prompts-ci-script-contracts
         locator: commonContract
     derived_artifacts:
+      use_cases:
+        - use_case_ref:
+            use_case_id: rust-cli-release-asset-publication
+        - use_case_ref:
+            use_case_id: ci-quality-gate-execution
+        - use_case_ref:
+            use_case_id: github-tool-exact-version-provisioning
       quality_scenarios:
         - quality_scenario_ref:
             quality_scenario_id: ci-common-processing-action-reuse-safe
