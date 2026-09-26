@@ -15,9 +15,9 @@ observations:
           meaning: Aggregate quality adapter status.
         - selector: result-path
           kind: observation_field
-          meaning: Path to the quality adapter result JSON.
+          meaning: Path to the quality adapter result JSON, set only when the adapter result is written; absent when descriptor loading or execution initialization is rejected.
   - id: observation.ci-quality-adapter.result
-    summary: The Action exposes its failed step outcome when an adapter contract is rejected.
+    summary: The Action exposes non-success step outcomes and toolchain mismatch diagnostics.
     boundary:
       ref: boundary.action-output
     value:
@@ -26,4 +26,4 @@ observations:
       fields:
         - selector: outcome
           kind: observation_field
-          meaning: Failure outcome of the rejected quality adapter step.
+          meaning: Failure outcome of a rejected or non-success quality adapter step, including toolchain version mismatch.

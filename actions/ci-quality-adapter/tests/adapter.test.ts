@@ -12,6 +12,7 @@ const descriptorWithVerify = (command: string, args: string[]): string =>
     .replace('command: node', `command: ${command}`)
     .replace('args: [--version]', `args: [${args.map((arg) => JSON.stringify(arg)).join(', ')}]`);
 
+// contract_id: contract.ci-quality-adapter.outputs
 // integration_id: ci-quality-adapter-source
 test('executes a read-only adapter in the source root', () => {
   // Arrange
@@ -134,16 +135,19 @@ test('accepts the toolchain version as an independent token', () => {
     ['stderr', descriptorWithVerify('sh', ['-c', 'printf 9.9.9 >&2'])],
   ] as const;
 
-  // Act + Assert
-  for (const [name, content] of accepted) {
+  // Act
+  const acceptedResults = accepted.map(([name, content]) => {
     const bundlePath = path.join(root, `${name.replaceAll(' ', '-')}.yml`);
     fs.writeFileSync(bundlePath, content);
-    const result = executeAdapter(loadAdapterBundle(bundlePath), { sourceRoot: root, toolchainVersion: '9.9.9', requireTrustedProjectScripts: false });
-    assert.equal(result.status, 'success', name);
-  }
+    return { name, result: executeAdapter(loadAdapterBundle(bundlePath), { sourceRoot: root, toolchainVersion: '9.9.9', requireTrustedProjectScripts: false }) };
+  });
+
+  // Assert
+  for (const { name, result } of acceptedResults) assert.equal(result.status, 'success', name);
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+// contract_id: contract.ci-quality-adapter.outputs
 // integration_id: ci-quality-adapter-source
 test('rejects a missing or mismatched toolchain version token with the stable diagnostic', () => {
   // Arrange
@@ -155,17 +159,48 @@ test('rejects a missing or mismatched toolchain version token with the stable di
     ['non-zero exit', descriptorWithVerify('sh', ['-c', 'printf 9.9.9; exit 1'])],
   ] as const;
 
-  // Act + Assert
-  for (const [name, content] of rejected) {
+  // Act
+  const rejectedResults = rejected.map(([name, content]) => {
     const bundlePath = path.join(root, `${name.replaceAll(' ', '-')}.yml`);
     fs.writeFileSync(bundlePath, content);
-    const result = executeAdapter(loadAdapterBundle(bundlePath), { sourceRoot: root, toolchainVersion: '9.9.9', requireTrustedProjectScripts: false });
+    return { name, result: executeAdapter(loadAdapterBundle(bundlePath), { sourceRoot: root, toolchainVersion: '9.9.9', requireTrustedProjectScripts: false }) };
+  });
+
+  // Assert
+  for (const { name, result } of rejectedResults) {
     assert.equal(result.status, 'failed', name);
     const toolchain = result.results[0];
     assert.match(toolchain.stderr, /quality-adapter-toolchain-version-mismatch/);
     assert.match(toolchain.stderr, /expected=9\.9\.9/);
     assert.match(toolchain.stderr, /received=/);
   }
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+// contract_id: contract.ci-quality-adapter.outputs
+// integration_id: ci-quality-adapter-source
+test('reports command-unavailable and preparation failure as non-success', () => {
+  // Arrange
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-adapter-non-success-'));
+  const unavailablePath = path.join(root, 'unavailable.yml');
+  fs.writeFileSync(unavailablePath, descriptor.replace('command: node', 'command: ci-adapter-missing-command'));
+  const projectUnavailablePath = path.join(root, 'project-unavailable.yml');
+  fs.writeFileSync(projectUnavailablePath, descriptor.replace('  - id: test\n    command: node', '  - id: test\n    command: ci-adapter-missing-command'));
+  const preparationPath = path.join(root, 'preparation.yml');
+  fs.writeFileSync(preparationPath, descriptor.replace('command: node\n    args: [-e, "process.exit(0)"]', 'command: sh\n    args: [-c, "exit 1"]'));
+
+  // Act
+  const unavailable = executeAdapter(loadAdapterBundle(unavailablePath), { sourceRoot: root, toolchainVersion: process.version.slice(1), requireTrustedProjectScripts: false });
+  const projectUnavailable = executeAdapter(loadAdapterBundle(projectUnavailablePath), { sourceRoot: root, toolchainVersion: process.version.slice(1), requireTrustedProjectScripts: false });
+  const preparation = executeAdapter(loadAdapterBundle(preparationPath), { sourceRoot: root, toolchainVersion: process.version.slice(1), requireTrustedProjectScripts: false });
+
+  // Assert
+  assert.equal(unavailable.status, '判定不能');
+  assert.deepEqual(unavailable.results.map((item) => item.id), ['toolchain-verify']);
+  assert.equal(projectUnavailable.status, '判定不能');
+  assert.deepEqual(projectUnavailable.results.map((item) => item.id), ['toolchain-verify', 'prepare', 'test']);
+  assert.equal(preparation.status, 'failed');
+  assert.deepEqual(preparation.results.map((item) => item.id), ['toolchain-verify', 'prepare']);
   fs.rmSync(root, { recursive: true, force: true });
 });
 

@@ -30,8 +30,6 @@ requirements:
         locator: actionization
       - document_id: a3-prompts-ci-script-contracts
         locator: commonContract
-      - document_id: a3-prompts-ci-adapter-bundles
-        locator: contract.toolchain
     derived_artifacts:
       use_cases:
         - use_case_ref:

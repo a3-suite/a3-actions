@@ -83,6 +83,10 @@ runtime_contexts:
     summary: The package publication request has been created or verified successfully and exposes its bound source identity.
   - id: runtime-context.quality-adapter-toolchain-version-report-rejected
     summary: A quality adapter toolchain version command does not report the requested version as an independent token, or the command exits non-zero.
+  - id: runtime-context.quality-adapter-command-unavailable
+    summary: A quality adapter version or project command cannot be spawned.
+  - id: runtime-context.quality-adapter-processing-failed
+    summary: A quality adapter preparation or project command exited non-zero.
   - id: runtime-context.action-input-invalid
     summary: An Action invocation contains invalid, unsafe, or authority-mismatching input.
   - id: runtime-context.action-input-insufficient
