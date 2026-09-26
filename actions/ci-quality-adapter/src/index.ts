@@ -18,7 +18,10 @@ export const run = (): void => {
     fs.writeFileSync(resultPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
     core.setOutput('status', payload.status);
     core.setOutput('result-path', resultPath);
-    if (payload.status !== 'success') core.setFailed(`quality-adapter-${payload.status}`);
+    if (payload.status !== 'success') {
+      const diagnostic = payload.results.find((result) => result.stderr.includes('quality-adapter-toolchain-version-mismatch'));
+      core.setFailed(diagnostic ? diagnostic.stderr : `quality-adapter-${payload.status}`);
+    }
   } catch (error) {
     core.setOutput('status', 'failed');
     core.setFailed(error instanceof Error ? error.message : String(error));

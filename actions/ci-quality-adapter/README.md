@@ -4,4 +4,6 @@
 
 `bundle-path`、`source-root`、`toolchain-version` は必須です。project script の一致を要求する場合は `require-trusted-project-scripts: true` と `trusted-project-root` を指定します。outputs は `status` と `result-path` です。
 
-descriptor の `toolchain.verify` は `command` / `args` だけを宣言し、実行時出力の形式・パース規則はこの Action が所有します。Action は `command` を実行し、stdout と stderr を連結した出力を ASCII 空白で分割して、`toolchain-version` が独立トークン（`{version}` / `v{version}` / `V{version}` の完全一致）として現れることを検証します。exit≠0 またはトークン不一致の場合は `quality-adapter-toolchain-version-mismatch` と `expected=` / `received=` を stderr に出力します。旧 descriptor の `expectedOutput` は無視します。
+descriptor の `toolchain.verify` は `command` / `args` だけを宣言し、実行時出力の形式・パース規則はこの Action が所有します。Action は `command` を実行し、stdout と stderr を連結した出力を空白（space / tab / LF / CR）で分割して、`toolchain-version` が独立トークン（`{version}` / `v{version}` / `V{version}` の完全一致）として現れることを検証します。exit≠0 またはトークン不一致の場合は `quality-adapter-toolchain-version-mismatch` と `expected=` / `received=` を stderr に出力します。旧 descriptor の `expectedOutput` は無視します。
+
+`status` は常に出力し、`result-path` は result JSON を書き出せた場合だけ出力します（descriptor の読込や実行開始前の失敗では出力しません）。mismatch 時は Action の step 失敗メッセージにも診断コードと `expected=` / `received=` が露出します。

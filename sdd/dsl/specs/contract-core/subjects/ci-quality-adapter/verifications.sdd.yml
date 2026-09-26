@@ -27,3 +27,19 @@ verifications:
         checks:
           - id: check-quality-adapter-toolchain-version-diagnostic
             guarantee_ref: quality-adapter-toolchain-version-diagnostic-present
+          - id: check-quality-adapter-toolchain-version-failure
+            guarantee_ref: quality-adapter-toolchain-version-fails
+      - id: toolchain-command-unavailable
+        intent_id: quality-adapter-command-unavailable
+        input:
+          bundle-path: adapter.yml
+        checks:
+          - id: check-quality-adapter-command-unavailable-status
+            guarantee_ref: quality-adapter-command-unavailable-status
+      - id: preparation-command-failed
+        intent_id: quality-adapter-processing-rejected
+        input:
+          bundle-path: adapter.yml
+        checks:
+          - id: check-quality-adapter-processing-failure
+            guarantee_ref: quality-adapter-processing-failure-propagated
