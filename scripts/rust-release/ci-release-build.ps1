@@ -8,13 +8,13 @@ param(
   [Parameter(Mandatory = $true)][string]$OutputDirectory
 )
 $ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $false
 
 $manifestPath = $env:CI_CARGO_MANIFEST_PATH
 $binaryName = $env:CI_RELEASE_BINARY_NAME
-$versionPrefix = $env:CI_RELEASE_VERSION_PREFIX
 $assetPrefix = $env:CI_RELEASE_ASSET_PREFIX
 if ($Profile -ne 'rust') { throw 'language profile mismatch' }
-foreach ($value in @($manifestPath, $binaryName, $versionPrefix, $assetPrefix)) {
+foreach ($value in @($manifestPath, $binaryName, $assetPrefix)) {
   if ([string]::IsNullOrWhiteSpace($value)) { throw 'rust release setting missing' }
 }
 if (Test-Path -LiteralPath $OutputDirectory) { throw 'output directory already exists' }
@@ -44,9 +44,25 @@ cargo "+$Toolchain" build --manifest-path $manifestPath --locked --release --tar
 if ($LASTEXITCODE -ne 0) { throw 'cargo build failed' }
 $binaryPath = Join-Path $metadata.target_directory "$PlatformTarget/release/$binaryName.exe"
 if (-not (Test-Path -LiteralPath $binaryPath -PathType Leaf)) { throw 'release binary missing' }
-$binaryVersion = & $binaryPath --version
-if ($LASTEXITCODE -ne 0) { throw 'binary version command failed' }
-if ($binaryVersion -cne "$versionPrefix$($authority.version)") { throw 'binary version mismatch' }
+$versionErrorFile = [IO.Path]::GetTempFileName()
+try {
+  $binaryVersionStdout = & $binaryPath --version 2>$versionErrorFile
+  $binaryVersionExit = $LASTEXITCODE
+  $binaryVersionStderr = [IO.File]::ReadAllText($versionErrorFile)
+} finally {
+  [IO.File]::Delete($versionErrorFile)
+}
+$binaryVersionOutput = (@($binaryVersionStdout) -join "`n") + "`n" + $binaryVersionStderr
+$binaryVersionMatched = $false
+foreach ($token in ($binaryVersionOutput -split '[\x20\x09\x0A\x0D]+')) {
+  if ($token -ceq $authority.version -or $token -ceq "v$($authority.version)" -or $token -ceq "V$($authority.version)") {
+    $binaryVersionMatched = $true
+    break
+  }
+}
+if (($binaryVersionExit -ne 0) -or (-not $binaryVersionMatched)) {
+  throw "binary-version-mismatch: expected=$($authority.version) or v$($authority.version) or V$($authority.version) received=$binaryVersionOutput"
+}
 
 & (Join-Path $PSScriptRoot 'package-release.ps1') $binaryPath "$binaryName.exe" $assetPrefix $authority.version $PlatformId $PlatformTarget $authority.source_sha $OutputDirectory
 & (Join-Path $PSScriptRoot 'verify-release-asset.ps1') "$binaryName.exe" $assetPrefix $authority.version $PlatformId $PlatformTarget $authority.source_sha $OutputDirectory

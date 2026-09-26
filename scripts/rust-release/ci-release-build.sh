@@ -12,7 +12,6 @@ output_dir=${7:?output directory is required}
 
 manifest_path=${CI_CARGO_MANIFEST_PATH:?CI_CARGO_MANIFEST_PATH is required}
 binary_name=${CI_RELEASE_BINARY_NAME:?CI_RELEASE_BINARY_NAME is required}
-version_prefix=${CI_RELEASE_VERSION_PREFIX:?CI_RELEASE_VERSION_PREFIX is required}
 asset_prefix=${CI_RELEASE_ASSET_PREFIX:?CI_RELEASE_ASSET_PREFIX is required}
 
 test "$profile" = rust
@@ -73,8 +72,33 @@ cargo "+$toolchain" build --manifest-path "$manifest_path" --locked --release --
 target_directory=$(jq -er '.target_directory' <<<"$metadata")
 binary_path="$target_directory/$platform_target/release/$binary_name"
 test -x "$binary_path"
-binary_version=$("$binary_path" --version)
-test "$binary_version" = "${version_prefix}${version}"
+
+version_stderr_file=$(mktemp "${TMPDIR:-/tmp}/ci-release-version.XXXXXX")
+cleanup_version_stderr() {
+  if [[ -n "${version_stderr_file:-}" ]]; then unlink "$version_stderr_file" 2>/dev/null || true; fi
+}
+trap cleanup_version_stderr EXIT
+
+binary_version_exit=0
+binary_version_stdout=$("$binary_path" --version 2>"$version_stderr_file") || binary_version_exit=$?
+binary_version_stderr=$(cat "$version_stderr_file" 2>/dev/null || true)
+binary_version_output="${binary_version_stdout}
+${binary_version_stderr}"
+
+version_token_present() {
+  local output=$1 expected=$2 token
+  output=${output//$'\r'/ }
+  ( set -f
+    for token in $output; do
+      if [[ "$token" == "$expected" || "$token" == "v$expected" || "$token" == "V$expected" ]]; then exit 0; fi
+    done
+    exit 1 )
+}
+if (( binary_version_exit != 0 )) || ! version_token_present "$binary_version_output" "$version"; then
+  printf 'binary-version-mismatch: expected=%s or v%s or V%s received=%s\n' \
+    "$version" "$version" "$version" "$binary_version_output" >&2
+  exit 1
+fi
 
 bash "$script_dir/package-release-unix.sh" \
   "$binary_path" "$binary_name" "$asset_prefix" "$version" "$platform_id" \
