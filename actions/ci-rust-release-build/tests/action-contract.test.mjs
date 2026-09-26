@@ -44,12 +44,13 @@ test('action.yml maps release build inputs to the shared script family', () => {
     'output-directory',
     'cargo-manifest-path',
     'release-binary-name',
-    'release-version-prefix',
     'release-asset-prefix',
   ]) {
     assert.match(action, new RegExp(`^  ${input}:$`, 'm'));
   }
   assert.match(action, /scripts\/rust-release\/ci-release-build\.sh/);
+  assert.doesNotMatch(action, /release-version-prefix/);
+  assert.doesNotMatch(action, /CI_RELEASE_VERSION_PREFIX/);
   assert.match(action, /^  completed:$/m);
   assert.match(action, /^    value: \$\{\{ steps\.build\.outputs\.completed \}\}$/m);
   assert.match(action, /^        CI_CARGO_MANIFEST_PATH: \$\{\{ inputs\.cargo-manifest-path \}\}$/m);
@@ -110,7 +111,6 @@ test('composite release build exposes completed only after script success', () =
       OUTPUT_DIRECTORY: 'build/linux-x64',
       CI_CARGO_MANIFEST_PATH: 'Cargo.toml',
       CI_RELEASE_BINARY_NAME: 'example-cli',
-      CI_RELEASE_VERSION_PREFIX: 'example-cli ',
       CI_RELEASE_ASSET_PREFIX: 'example-cli',
     };
     // Act
